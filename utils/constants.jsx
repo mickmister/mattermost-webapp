@@ -298,6 +298,7 @@ export const ModalIdentifiers = {
     DELETE_CHANNEL: 'delete_channel',
     CHANNEL_NOTIFICATIONS: 'channel_notifications',
     CHANNEL_INVITE: 'channel_invite',
+    ADD_USER_TO_CHANNEL: 'add_user_to_channel',
     CREATE_DM_CHANNEL: 'create_dm_channel',
     EDIT_CHANNEL_HEADER: 'edit_channel_header',
     DELETE_POST: 'delete_post',

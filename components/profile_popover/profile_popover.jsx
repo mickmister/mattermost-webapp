@@ -13,9 +13,18 @@ import UserSettingsModal from 'components/user_settings/modal';
 import {browserHistory} from 'utils/browser_history';
 import {openDirectChannelToUser} from 'actions/channel_actions.jsx';
 import * as GlobalActions from 'actions/global_actions.jsx';
+import * as WebrtcActions from 'actions/webrtc_actions.jsx';
+import TeamStore from 'stores/team_store.jsx';
+import UserStore from 'stores/user_store.jsx';
+import WebrtcStore from 'stores/webrtc_store.jsx';
 import Constants, {ModalIdentifiers} from 'utils/constants.jsx';
 import * as Utils from 'utils/utils.jsx';
 import Pluggable from 'plugins/pluggable';
+
+import AddUserToChannelModal from 'components/add_user_to_channel_modal';
+import ToggleModalButtonRedux from 'components/toggle_modal_button_redux';
+
+const UserStatuses = Constants.UserStatuses;
 
 /**
  * The profile popover, or hovercard, that appears with user information when clicking
@@ -334,6 +343,34 @@ class ProfilePopover extends React.Component {
                     </a>
                 </div>
             );
+
+            dataContent.push(
+                <div
+                    data-toggle='tooltip'
+                    key='user-popover-invite'
+                    className='popover__row first'
+                >
+                    <ToggleModalButtonRedux
+                        ref='addUserToChannelModalButton'
+                        modalId={ModalIdentifiers.ADD_USER_TO_CHANNEL}
+                        role='menuitem'
+                        dialogType={AddUserToChannelModal}
+                        dialogProps={{user: this.props.user}}
+                        onClick={this.props.hide}
+                    >
+                        <i
+                            className='fa fa-user-plus'
+                            title={Utils.localizeMessage('user_profile.add.channel.icon', 'Add User to Channel Icon')}
+                        />
+                        <FormattedMessage
+                            id='user_profile.add.channel'
+                            defaultMessage='Add to a Channel'
+                        />
+                    </ToggleModalButtonRedux>
+                </div>
+            );
+
+            dataContent.push(webrtc);
         }
 
         dataContent.push(

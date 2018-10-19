@@ -6,7 +6,7 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 
-import SwitchChannelProvider from 'components/suggestion/switch_channel_provider.jsx';
+import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 import SuggestionBox from 'components/suggestion/suggestion_box.jsx';
 import SuggestionList from 'components/suggestion/suggestion_list.jsx';
 
@@ -14,13 +14,34 @@ import * as Utils from 'utils/utils.jsx';
 
 export default class AddUserToChannelModal extends React.Component {
     static propTypes = {
+
+        /**
+         * Function that's called when modal is closed
+         */
         onHide: PropTypes.func.isRequired,
+
+        /**
+         * The user that is being added to a channel
+         */
         user: PropTypes.object.isRequired,
+
+        /**
+         * Object used to determine if the user
+         * is a member of a given channel
+         */
         channelMembers: PropTypes.object.isRequired,
+
         actions: PropTypes.shape({
+
+            /**
+             * Function to add the user to a channel
+             */
             addChannelMember: PropTypes.func.isRequired,
+
+            /**
+             * Function to fetch the user's channel membership
+             */
             getChannelMember: PropTypes.func.isRequired,
-            autocompleteChannelsForSearch: PropTypes.func.isRequired,
         }).isRequired,
     }
 
@@ -36,27 +57,15 @@ export default class AddUserToChannelModal extends React.Component {
             selectedChannel: null,
             inviteError: '',
         };
-        this.suggestionProviders = [new SwitchChannelProvider()];
+        this.suggestionProviders = [new SearchChannelWithPermissionsProvider()];
         this.enableChannelProvider();
     }
 
-    onChange = (e) => {
-        this.setState({text: e.target.value});
+    enableChannelProvider = () => {
+        this.suggestionProviders[0].disableDispatches = false;
     }
 
-    onHide = () => {
-        this.setState({show: false});
-    }
-
-    handleInviteError = (error) => {
-        if (error) {
-            this.setState({inviteError: error.message, saving: false});
-            return;
-        }
-        this.onHide();
-    }
-
-    focusTextbox() {
+    focusTextbox = () => {
         if (this.channelSearchBox == null) {
             return;
         }
@@ -68,9 +77,25 @@ export default class AddUserToChannelModal extends React.Component {
         }
     }
 
+    onChange = (e) => {
+        this.setState({text: e.target.value, selectedChannel: null});
+    }
+
+    onHide = () => {
+        this.setState({show: false});
+    }
+
     setSearchBoxRef = (input) => {
         this.channelSearchBox = input;
         this.focusTextbox();
+    }
+
+    handleInviteError = (error) => {
+        if (error) {
+            this.setState({inviteError: error.message, saving: false});
+            return;
+        }
+        this.onHide();
     }
 
     didSelectChannel = (selection) => {
@@ -83,6 +108,7 @@ export default class AddUserToChannelModal extends React.Component {
             checkingForMembership: true,
             inviteError: '',
         });
+
         this.props.actions.getChannelMember(channel.id, userId).then(() => {
             this.setState({checkingForMembership: false});
         });
@@ -91,42 +117,45 @@ export default class AddUserToChannelModal extends React.Component {
     handleSubmit = () => {
         const channel = this.state.selectedChannel;
         const user = this.props.user;
+
         if (!channel) {
             return;
         }
+
         this.setState({saving: true});
+
         this.props.actions.addChannelMember(channel.id, user.id).then(({error}) => {
             this.handleInviteError(error);
         });
     }
 
-    enableChannelProvider() {
-        this.suggestionProviders[0].disableDispatches = false;
-    }
+    isUserMemberOfChannel = (channel) => {
+        const user = this.props.user;
+        const memberships = this.props.channelMembers;
 
-    isUserMemberOfChannel = () => {
-        const channel = this.state.selectedChannel;
         if (!channel) {
             return false;
         }
-        const user = this.props.user;
-        const memberships = this.props.channelMembers;
+
         if (!memberships[channel.id]) {
             return false;
         }
+
         return Boolean(memberships[channel.id][user.id]);
     }
 
     render() {
         const user = this.props.user;
-
-        const userIsMemberOfSelectedChannel = this.isUserMemberOfChannel();
+        const channel = this.state.selectedChannel;
+        const targetUserIsMemberOfSelectedChannel = this.isUserMemberOfChannel(channel);
 
         let inviteError;
-        if (this.state.inviteError) {
-            inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
-        } else if (userIsMemberOfSelectedChannel) {
-            inviteError = (<label className='has-error control-label'>{'User is already in the channel'}</label>);
+        if (!this.state.saving) {
+            if (this.state.inviteError) {
+                inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
+            } else if (targetUserIsMemberOfSelectedChannel) {
+                inviteError = (<label className='has-error control-label'>{'User is already in the channel'}</label>);
+            }
         }
 
         const help = (
@@ -155,7 +184,10 @@ export default class AddUserToChannelModal extends React.Component {
             />
         );
 
-        const shouldDisableAddButton = Boolean(!this.state.selectedChannel) || this.state.checkingForMembership || userIsMemberOfSelectedChannel || this.state.saving;
+        const shouldDisableAddButton = targetUserIsMemberOfSelectedChannel ||
+            this.state.checkingForMembership ||
+            Boolean(!this.state.selectedChannel) ||
+            this.state.saving;
 
         return (
             <Modal

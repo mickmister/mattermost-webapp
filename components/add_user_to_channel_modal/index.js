@@ -3,14 +3,13 @@
 
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {addChannelMember, getChannelMember, autocompleteChannelsForSearch} from 'mattermost-redux/actions/channels';
-import * as Selectors from 'mattermost-redux/selectors/entities/channels';
+import {addChannelMember, getChannelMember} from 'mattermost-redux/actions/channels';
+import {getChannelMembersInChannels} from 'mattermost-redux/selectors/entities/channels';
 
 import AddUsersToChannel from './add_user_to_channel_modal';
 
 function mapStateToProps(state) {
-    const channelMembers = Selectors.getChannelMembersInChannels(state) || {};
-
+    const channelMembers = getChannelMembersInChannels(state) || {};
     return {
         channelMembers,
     };
@@ -21,7 +20,6 @@ function mapDispatchToProps(dispatch) {
         actions: bindActionCreators({
             addChannelMember,
             getChannelMember,
-            autocompleteChannelsForSearch,
         }, dispatch),
     };
 }

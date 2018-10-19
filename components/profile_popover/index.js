@@ -7,6 +7,7 @@ import {bindActionCreators} from 'redux';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {haveIChannelPermission} from 'mattermost-redux/selectors/entities/roles';
+import {Permissions} from 'mattermost-redux/constants';
 
 import {openModal} from 'actions/views/modals';
 
@@ -15,15 +16,17 @@ import {areTimezonesEnabledAndSupported} from 'selectors/general';
 import ProfilePopover from './profile_popover.jsx';
 
 function mapStateToProps(state) {
-    const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: 'manage_public_channel_members'});
-    const hasManagePrivateChannelMembersPermission = haveIChannelPermission(state, {permission: 'manage_private_channel_members'});
-    const shouldShowAddToChannelButton = hasManagePublicChannelMembersPermission || hasManagePrivateChannelMembersPermission;
+
+    const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
+    const hasManagePrivateChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
+
+    const canManageChannelMembers = hasManagePublicChannelMembersPermission || hasManagePrivateChannelMembersPermission;
 
     return {
         enableTimezone: areTimezonesEnabledAndSupported(state),
         currentUserId: getCurrentUserId(state),
         teamUrl: '/' + getCurrentTeam(state).name,
-        shouldShowAddToChannelButton,
+        canManageChannelMembers,
     };
 }
 

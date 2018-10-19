@@ -6,6 +6,8 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 
+import * as UserUtils from 'mattermost-redux/utils/user_utils';
+
 import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 import SuggestionBox from 'components/suggestion/suggestion_box.jsx';
 import SuggestionList from 'components/suggestion/suggestion_list.jsx';
@@ -49,12 +51,36 @@ export default class AddUserToChannelModal extends React.Component {
         super(props);
 
         this.state = {
+
+            /**
+             * Whether or not the modal is visible
+             */
             show: true,
+
+            /**
+             * Whether or not a request to add the user is in progress
+             */
             saving: false,
-            loadingChannels: false,
+
+            /**
+             * Whether or not a request to check for the user's channel membership
+             * is in progress
+             */
             checkingForMembership: false,
+
+            /**
+             * The user input in the channel search box
+             */
             text: '',
-            selectedChannel: null,
+
+            /**
+             * The id for the channel that is selected
+             */
+            selectedChannelId: null,
+
+            /**
+             * An error to display when the add request fails
+             */
             inviteError: '',
         };
         this.suggestionProviders = [new SearchChannelWithPermissionsProvider()];
@@ -78,11 +104,12 @@ export default class AddUserToChannelModal extends React.Component {
     }
 
     onChange = (e) => {
-        this.setState({text: e.target.value, selectedChannel: null});
+        this.setState({text: e.target.value, selectedChannelId: null});
     }
 
     onHide = () => {
         this.setState({show: false});
+        this.props.onHide();
     }
 
     setSearchBoxRef = (input) => {
@@ -104,7 +131,7 @@ export default class AddUserToChannelModal extends React.Component {
 
         this.setState({
             text: channel.display_name,
-            selectedChannel: channel,
+            selectedChannelId: channel.id,
             checkingForMembership: true,
             inviteError: '',
         });
@@ -115,52 +142,69 @@ export default class AddUserToChannelModal extends React.Component {
     }
 
     handleSubmit = () => {
-        const channel = this.state.selectedChannel;
+        const channelId = this.state.selectedChannelId;
         const user = this.props.user;
 
-        if (!channel) {
+        if (!channelId) {
+            return;
+        }
+
+        if (this.isUserMemberOfChannel(channelId) || this.state.saving) {
             return;
         }
 
         this.setState({saving: true});
 
-        this.props.actions.addChannelMember(channel.id, user.id).then(({error}) => {
+        this.props.actions.addChannelMember(channelId, user.id).then(({error}) => {
             this.handleInviteError(error);
         });
     }
 
-    isUserMemberOfChannel = (channel) => {
+    isUserMemberOfChannel = (channelId) => {
         const user = this.props.user;
         const memberships = this.props.channelMembers;
 
-        if (!channel) {
+        if (!channelId) {
             return false;
         }
 
-        if (!memberships[channel.id]) {
+        if (!memberships[channelId]) {
             return false;
         }
 
-        return Boolean(memberships[channel.id][user.id]);
+        return Boolean(memberships[channelId][user.id]);
     }
 
     render() {
         const user = this.props.user;
-        const channel = this.state.selectedChannel;
-        const targetUserIsMemberOfSelectedChannel = this.isUserMemberOfChannel(channel);
+        const channelId = this.state.selectedChannelId;
+        const targetUserIsMemberOfSelectedChannel = this.isUserMemberOfChannel(channelId);
+
+        let name = UserUtils.getFullName(user);
+        if (!name) {
+            name = `@${user.username}`;
+        }
 
         let inviteError;
         if (!this.state.saving) {
             if (this.state.inviteError) {
-                inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
+                inviteError = (<label className='modal__error has-error control-label'>{this.state.inviteError}</label>);
             } else if (targetUserIsMemberOfSelectedChannel) {
-                inviteError = (<label className='has-error control-label'>{'User is already in the channel'}</label>);
+                inviteError = (<label className='modal__error has-error control-label'>
+                    <FormattedMessage
+                        id='add_user_to_channel_modal.membershipExistsError'
+                        defaultMessage='{name} is already a member of that channel'
+                        values={{
+                            name,
+                        }}
+                    />
+                </label>);
             }
         }
 
         const help = (
             <FormattedMessage
-                id='quick_switch_modal.help_no_team'
+                id='add_user_to_channel_modal.help'
                 defaultMessage='Type to find a channel. Use ↑↓ to browse, ↵ to select, ESC to dismiss.'
             />
         );
@@ -186,7 +230,7 @@ export default class AddUserToChannelModal extends React.Component {
 
         const shouldDisableAddButton = targetUserIsMemberOfSelectedChannel ||
             this.state.checkingForMembership ||
-            Boolean(!this.state.selectedChannel) ||
+            Boolean(!this.state.selectedChannelId) ||
             this.state.saving;
 
         return (
@@ -201,11 +245,10 @@ export default class AddUserToChannelModal extends React.Component {
                 <Modal.Header closeButton={true}>
                     <Modal.Title>
                         <FormattedMessage
-                            id='add_user_to_channel.title'
-                            defaultMessage='Add {first_name} {last_name} to a channel.'
+                            id='add_user_to_channel_modal.title'
+                            defaultMessage='Add {name} to a channel.'
                             values={{
-                                first_name: user.first_name,
-                                last_name: user.last_name,
+                                name,
                             }}
                         />
                     </Modal.Title>
@@ -215,7 +258,10 @@ export default class AddUserToChannelModal extends React.Component {
                         {help}
                     </div>
                     {content}
-                    {inviteError}
+                    <div>
+                        {inviteError}
+                        <br/>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <button

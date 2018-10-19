@@ -66,9 +66,11 @@ class ProfilePopover extends React.Component {
         teamUrl: PropTypes.string.isRequired,
 
         /**
-         * Whether or not we should show the "Add to Channel" button
+         * Whether or not the current user has permissions to manage members
+         * of either public channels or private channels.
+         * This determines whether or not we should show the "Add to Channel" button.
          */
-        shouldShowAddToChannelButton: PropTypes.bool.isRequired,
+        canManageChannelMembers: PropTypes.bool.isRequired,
 
         ...Popover.propTypes,
 
@@ -197,8 +199,7 @@ class ProfilePopover extends React.Component {
         delete popoverProps.currentUserId;
         delete popoverProps.teamUrl;
         delete popoverProps.actions;
-        delete popoverProps.hasManagePublicChannelMembersPermission;
-        delete popoverProps.hasManagePrivateChannelMembersPermission;
+        delete popoverProps.canManageChannelMembers;
 
         var dataContent = [];
         dataContent.push(
@@ -345,30 +346,35 @@ class ProfilePopover extends React.Component {
                 </div>
             );
 
-            if (this.props.shouldShowAddToChannelButton) {
+            if (this.props.canManageChannelMembers) {
                 dataContent.push(
                     <div
                         data-toggle='tooltip'
                         key='user-popover-invite'
                         className='popover__row first'
                     >
-                        <ToggleModalButtonRedux
-                            ref='addUserToChannelModalButton'
-                            modalId={ModalIdentifiers.ADD_USER_TO_CHANNEL}
-                            role='menuitem'
-                            dialogType={AddUserToChannelModal}
-                            dialogProps={{user: this.props.user}}
-                            onClick={this.props.hide}
+                        <a
+                            href='#'
+                            className='text-nowrap user-popover__add_to_channel'
                         >
-                            <i
-                                className='fa fa-user-plus'
-                                title={Utils.localizeMessage('user_profile.add.channel.icon', 'Add User to Channel Icon')}
-                            />
-                            <FormattedMessage
-                                id='user_profile.add.channel'
-                                defaultMessage='Add to a Channel'
-                            />
-                        </ToggleModalButtonRedux>
+                            <ToggleModalButtonRedux
+                                ref='addUserToChannelModalButton'
+                                modalId={ModalIdentifiers.ADD_USER_TO_CHANNEL}
+                                role='menuitem'
+                                dialogType={AddUserToChannelModal}
+                                dialogProps={{user: this.props.user}}
+                                onClick={this.props.hide}
+                            >
+                                <i
+                                    className='fa fa-user-plus'
+                                    title={Utils.localizeMessage('user_profile.add_user_to_channel.icon', 'Add User to Channel Icon')}
+                                />
+                                <FormattedMessage
+                                    id='user_profile.add_user_to_channel'
+                                    defaultMessage='Add to a Channel'
+                                />
+                            </ToggleModalButtonRedux>
+                        </a>
                     </div>
                 );
             }

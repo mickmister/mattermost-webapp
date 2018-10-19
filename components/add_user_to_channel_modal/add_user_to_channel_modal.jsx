@@ -6,6 +6,8 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 
+import * as UserUtils from 'mattermost-redux/utils/user_utils';
+
 import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 import SuggestionBox from 'components/suggestion/suggestion_box.jsx';
 import SuggestionList from 'components/suggestion/suggestion_list.jsx';
@@ -149,18 +151,23 @@ export default class AddUserToChannelModal extends React.Component {
         const channel = this.state.selectedChannel;
         const targetUserIsMemberOfSelectedChannel = this.isUserMemberOfChannel(channel);
 
+        let name = UserUtils.getFullName(user);
+        if (!name) {
+            name = `@${user.username}`;
+        }
+
         let inviteError;
         if (!this.state.saving) {
             if (this.state.inviteError) {
                 inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
             } else if (targetUserIsMemberOfSelectedChannel) {
-                inviteError = (<label className='has-error control-label'>{'User is already in the channel'}</label>);
+                inviteError = (<label className='has-error control-label'>{`${name} is already a member of that channel`}</label>);
             }
         }
 
         const help = (
             <FormattedMessage
-                id='quick_switch_modal.help_no_team'
+                id='add_user_to_channel_modal.help'
                 defaultMessage='Type to find a channel. Use ↑↓ to browse, ↵ to select, ESC to dismiss.'
             />
         );
@@ -202,10 +209,9 @@ export default class AddUserToChannelModal extends React.Component {
                     <Modal.Title>
                         <FormattedMessage
                             id='add_user_to_channel.title'
-                            defaultMessage='Add {first_name} {last_name} to a channel.'
+                            defaultMessage='Add {name} to a channel.'
                             values={{
-                                first_name: user.first_name,
-                                last_name: user.last_name,
+                                name,
                             }}
                         />
                     </Modal.Title>
@@ -215,7 +221,10 @@ export default class AddUserToChannelModal extends React.Component {
                         {help}
                     </div>
                     {content}
-                    {inviteError}
+                    <div className='form-group has-error'>
+                        <br/>
+                        {inviteError}
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <button

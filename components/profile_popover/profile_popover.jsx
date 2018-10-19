@@ -415,23 +415,28 @@ class ProfilePopover extends React.Component {
                         key='user-popover-invite'
                         className='popover__row first'
                     >
-                        <ToggleModalButtonRedux
-                            ref='addUserToChannelModalButton'
-                            modalId={ModalIdentifiers.ADD_USER_TO_CHANNEL}
-                            role='menuitem'
-                            dialogType={AddUserToChannelModal}
-                            dialogProps={{user: this.props.user}}
-                            onClick={this.props.hide}
+                        <a
+                            href='#'
+                            className='text-nowrap user-popover__email'
                         >
-                            <i
-                                className='fa fa-user-plus'
-                                title={Utils.localizeMessage('user_profile.add.channel.icon', 'Add User to Channel Icon')}
-                            />
-                            <FormattedMessage
-                                id='user_profile.add.channel'
-                                defaultMessage='Add to a Channel'
-                            />
-                        </ToggleModalButtonRedux>
+                            <ToggleModalButtonRedux
+                                ref='addUserToChannelModalButton'
+                                modalId={ModalIdentifiers.ADD_USER_TO_CHANNEL}
+                                role='menuitem'
+                                dialogType={AddUserToChannelModal}
+                                dialogProps={{user: this.props.user}}
+                                onClick={this.props.hide}
+                            >
+                                <i
+                                    className='fa fa-user-plus'
+                                    title={Utils.localizeMessage('user_profile.add.channel.icon', 'Add User to Channel Icon')}
+                                />
+                                <FormattedMessage
+                                    id='user_profile.add.channel'
+                                    defaultMessage='Add to a Channel'
+                                />
+                            </ToggleModalButtonRedux>
+                        </a>
                     </div>
                 );
             }

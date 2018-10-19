@@ -159,9 +159,9 @@ export default class AddUserToChannelModal extends React.Component {
         let inviteError;
         if (!this.state.saving) {
             if (this.state.inviteError) {
-                inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
+                inviteError = (<label className='modal__error has-error control-label'>{this.state.inviteError}</label>);
             } else if (targetUserIsMemberOfSelectedChannel) {
-                inviteError = (<label className='has-error control-label'>{`${name} is already a member of that channel`}</label>);
+                inviteError = (<label className='modal__error has-error control-label'>{`${name} is already a member of that channel`}</label>);
             }
         }
 
@@ -221,9 +221,9 @@ export default class AddUserToChannelModal extends React.Component {
                         {help}
                     </div>
                     {content}
-                    <div className='form-group has-error'>
-                        <br/>
+                    <div>
                         {inviteError}
+                        <br/>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>

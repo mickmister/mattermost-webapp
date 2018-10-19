@@ -3,6 +3,8 @@
 
 import {connect} from 'react-redux';
 
+import {haveIChannelPermission} from 'mattermost-redux/selectors/entities/roles';
+
 import {areTimezonesEnabledAndSupported} from 'selectors/general';
 
 import ProfilePopover from './profile_popover.jsx';
@@ -12,9 +14,14 @@ function mapStateToProps(state) {
 
     const enableWebrtc = config.EnableWebrtc === 'true';
 
+    const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: 'manage_public_channel_members'});
+    const hasManagePrivateChannelMembersPermission = haveIChannelPermission(state, {permission: 'manage_private_channel_members'});
+    const shouldShowAddToChannelButton = hasManagePublicChannelMembersPermission || hasManagePrivateChannelMembersPermission;
+
     return {
         enableWebrtc,
         enableTimezone: areTimezonesEnabledAndSupported(state),
+        shouldShowAddToChannelButton,
     };
 }
 

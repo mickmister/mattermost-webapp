@@ -7,6 +7,7 @@ import {addChannelMember, getChannelMember} from 'mattermost-redux/actions/chann
 import {getChannelMembersInChannels} from 'mattermost-redux/selectors/entities/channels';
 
 import AddUserToChannelModal from './add_user_to_channel_modal.jsx';
+export const Child = AddUserToChannelModal;
 
 function mapStateToProps(state) {
     const channelMembers = getChannelMembersInChannels(state) || {};

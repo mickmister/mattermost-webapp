@@ -10,7 +10,7 @@ import {useSafeUrl} from 'utils/url';
 import MattermostIcon from 'images/favicon/android-chrome-192x192.png';
 import Nexus6Mockup from 'images/nexus-6p-mockup.png';
 
-export default function GetAndroidApp({androidAppDownloadLink}) {
+export default function GetAndroidApp({androidAppDownloadLink, location}) {
     return (
         <div className='get-app get-android-app'>
             <h1 className='get-app__header'>
@@ -59,7 +59,7 @@ export default function GetAndroidApp({androidAppDownloadLink}) {
                     defaultMessage='Or {link}'
                     values={{
                         link: (
-                            <Link to='/'>
+                            <Link to={`/signup_email${location.search}`}>
                                 <FormattedMessage
                                     id='get_app.continueWithBrowserLink'
                                     defaultMessage='continue with browser'

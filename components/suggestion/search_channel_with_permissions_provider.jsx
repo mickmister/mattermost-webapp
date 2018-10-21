@@ -23,7 +23,6 @@ import {ActionTypes, Constants} from 'utils/constants.jsx';
 import Provider from './provider.jsx';
 import Suggestion from './suggestion.jsx';
 
-
 class SearchChannelWithPermissionsSuggestion extends Suggestion {
     static get propTypes() {
         return {

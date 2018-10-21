@@ -1,16 +1,11 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React from 'react';
-import {mount, shallow} from 'enzyme';
 import configureStore from 'redux-mock-store';
-import {Provider} from 'react-redux';
-import {mountWithIntl} from 'tests/helpers/intl-test-helper';
+
 import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 
 jest.useFakeTimers();
-
-// check if it includes public and private, but not group and dm
 
 describe('components/SearchChannelWithPermissionsProvider', () => {
     const defaultState = {
@@ -71,6 +66,13 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
                         display_name: 'Some Direct Conversation',
                         delete_at: 0,
                     },
+                    someGroupConversation: {
+                        id: 'someGroupConversation',
+                        type: 'GM',
+                        name: 'Some Group Conversation',
+                        display_name: 'Some Group Conversation',
+                        delete_at: 0,
+                    },
                 },
                 channelsInTeam: {
                     someTeamId: [
@@ -79,6 +81,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
                         'somePublicNonMemberChannelId',
                         'somePrivateNonMemberChannelId',
                         'someDirectConversation',
+                        'someGroupConversation',
                     ],
                 },
             },
@@ -132,7 +135,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         expect(args.items.length).toEqual(1);
     });
 
-    it('should show public channels if user has public channel manage permission', async () => {
+    it('should show private channels if user has private channel manage permission', async () => {
         const mockStore = configureStore();
 
         const state = {
@@ -197,5 +200,38 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const args = dispatchResults.mock.calls[0][0];
 
         expect(args.items.length).toEqual(2);
+    });
+
+    it('should show nothing if the search does not match', async () => {
+        const mockStore = configureStore();
+
+        const state = {
+            ...defaultState,
+            entities: {
+                ...defaultState.entities,
+                teams: {
+                    currentTeamId: 'someTeamId',
+                    myMembers: {
+                        someTeamId: {
+                            roles: 'private_channels_manager public_channels_manager',
+                        },
+                    },
+                },
+            },
+        };
+
+        const store = mockStore(state);
+        const searchProvider = new SearchChannelWithPermissionsProvider();
+        const dispatchResults = jest.fn();
+        const getState = jest.fn().mockReturnValue(store.getState());
+        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
+        searchProvider.getState = getState.bind(searchProvider);
+
+        const searchText = 'not matching text';
+        searchProvider.handlePretextChanged('suggestionId', searchText);
+        jest.runAllTimers();
+        const args = dispatchResults.mock.calls[0][0];
+
+        expect(args.items.length).toEqual(0);
     });
 });

@@ -33,6 +33,13 @@ describe('plugins/Pluggable', () => {
             },
             users: {
                 currentUserId: '',
+                profiles: {},
+            },
+            channels: {
+                myMembers: {},
+            },
+            roles: {
+                roles: {},
             },
         },
         plugins: {

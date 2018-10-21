@@ -243,7 +243,9 @@ exports[`plugins/Pluggable should match snapshot with no overridden component 1`
             "openModal": [Function],
           }
         }
+        canManageChannelMembers={false}
         currentUserId=""
+        dispatch={[Function]}
         enableTimezone={false}
         hasMention={false}
         isRHS={false}

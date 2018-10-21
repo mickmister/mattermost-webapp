@@ -34,42 +34,42 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
                     somePublicMemberChannelId: {
                         id: 'somePublicMemberChannelId',
                         type: 'O',
-                        name: 'Some Public Member Channel',
+                        name: 'some-public-member-channel',
                         display_name: 'Some Public Member Channel',
                         delete_at: 0,
                     },
                     somePrivateMemberChannelId: {
                         id: 'somePrivateMemberChannelId',
                         type: 'P',
-                        name: 'Some Private Member Channel',
+                        name: 'some-private-member-channel',
                         display_name: 'Some Private Member Channel',
                         delete_at: 0,
                     },
                     somePublicNonMemberChannelId: {
                         id: 'somePublicNonMemberChannelId',
                         type: 'O',
-                        name: 'Some Public Non-Member Channel',
+                        name: 'some-public-non-member-channel',
                         display_name: 'Some Public Non-Member Channel',
                         delete_at: 0,
                     },
                     somePrivateNonMemberChannelId: {
                         id: 'somePrivateNonMemberChannelId',
                         type: 'P',
-                        name: 'Some Private Non-Member Channel',
+                        name: 'some-private=non-member-channel',
                         display_name: 'Some Private Non-Member Channel',
                         delete_at: 0,
                     },
                     someDirectConversation: {
                         id: 'someDirectConversation',
                         type: 'D',
-                        name: 'Some Direct Conversation',
+                        name: 'some-direct-conversation',
                         display_name: 'Some Direct Conversation',
                         delete_at: 0,
                     },
                     someGroupConversation: {
                         id: 'someGroupConversation',
                         type: 'GM',
-                        name: 'Some Group Conversation',
+                        name: 'some-group-conversation',
                         display_name: 'Some Group Conversation',
                         delete_at: 0,
                     },
@@ -121,15 +121,18 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
 
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
-        const dispatchResults = jest.fn();
+
+        const appDispatch = jest.fn();
+        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
         searchProvider.getState = getState.bind(searchProvider);
+        const dispatch = store.dispatch;
+        searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged('suggestionId', searchText);
         jest.runAllTimers();
-        const args = dispatchResults.mock.calls[0][0];
+        const args = appDispatch.mock.calls[0][0];
 
         expect(args.items[0].channel.id).toEqual('somePublicMemberChannelId');
         expect(args.items.length).toEqual(1);
@@ -155,15 +158,18 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
 
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
-        const dispatchResults = jest.fn();
+
+        const appDispatch = jest.fn();
+        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
         searchProvider.getState = getState.bind(searchProvider);
+        const dispatch = store.dispatch;
+        searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged('suggestionId', searchText);
         jest.runAllTimers();
-        const args = dispatchResults.mock.calls[0][0];
+        const args = appDispatch.mock.calls[0][0];
 
         expect(args.items[0].channel.id).toEqual('somePrivateMemberChannelId');
         expect(args.items.length).toEqual(1);
@@ -189,16 +195,21 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
 
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
-        const dispatchResults = jest.fn();
+
+        const appDispatch = jest.fn();
+        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
         searchProvider.getState = getState.bind(searchProvider);
+        const dispatch = store.dispatch;
+        searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged('suggestionId', searchText);
         jest.runAllTimers();
-        const args = dispatchResults.mock.calls[0][0];
+        const args = appDispatch.mock.calls[0][0];
 
+        expect(args.items[0].channel.id).toEqual('somePublicMemberChannelId');
+        expect(args.items[1].channel.id).toEqual('somePrivateMemberChannelId');
         expect(args.items.length).toEqual(2);
     });
 
@@ -222,15 +233,18 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
 
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
-        const dispatchResults = jest.fn();
+
+        const appDispatch = jest.fn();
+        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
         searchProvider.getState = getState.bind(searchProvider);
+        const dispatch = store.dispatch;
+        searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged('suggestionId', searchText);
         jest.runAllTimers();
-        const args = dispatchResults.mock.calls[0][0];
+        const args = appDispatch.mock.calls[0][0];
 
         expect(args.items.length).toEqual(0);
     });
@@ -255,15 +269,18 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
 
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
-        const dispatchResults = jest.fn();
+
+        const appDispatch = jest.fn();
+        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
         searchProvider.getState = getState.bind(searchProvider);
+        const dispatch = store.dispatch;
+        searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'not matching text';
         searchProvider.handlePretextChanged('suggestionId', searchText);
         jest.runAllTimers();
-        const args = dispatchResults.mock.calls[0][0];
+        const args = appDispatch.mock.calls[0][0];
 
         expect(args.items.length).toEqual(0);
     });

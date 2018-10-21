@@ -105,14 +105,14 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
 
         return (channel) => {
             const state = this.getState();
-            const hasManagePublicChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
-            const hasManagePrivateChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
+            const canManagePublicChannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
+            const canManagePrivatehannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
             const searchString = channel.display_name;
 
-            if (hasManagePublicChannelMembersPermission && channel.type === Constants.OPEN_CHANNEL) {
+            if (canManagePublicChannels && channel.type === Constants.OPEN_CHANNEL) {
                 return searchString.toLowerCase().includes(channelPrefixLower);
             }
-            if (hasManagePrivateChannelMembersPermission && channel.type === Constants.PRIVATE_CHANNEL) {
+            if (canManagePrivatehannels && channel.type === Constants.PRIVATE_CHANNEL) {
                 return searchString.toLowerCase().includes(channelPrefixLower);
             }
             return false;
@@ -143,7 +143,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             return;
         }
 
-        const channelsAsync = ChannelActions.searchChannels(teamId, channelPrefix)(store.dispatch, this.getState);
+        const channelsAsync = ChannelActions.autocompleteChannelsForSearch(teamId, channelPrefix)(this.dispatch, this.getState);
 
         let channelsFromServer = [];
         try {
@@ -217,7 +217,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             map((wrappedChannel) => wrappedChannel.channel.name);
 
         setTimeout(() => {
-            this.dispatchResults({
+            this.appDispatch({
                 type: ActionTypes.SUGGESTION_RECEIVED_SUGGESTIONS,
                 id: suggestionId,
                 matchedPretext: channelPrefix,
@@ -228,11 +228,11 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
         }, 0);
     }
 
-    getState() {
-        return store.getState();
-    }
+    getState = store.getState;
 
-    dispatchResults(results) {
+    dispatch = store.dispatch;
+
+    appDispatch = (results) => {
         AppDispatcher.handleServerAction(results);
     }
 }

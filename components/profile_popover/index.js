@@ -17,10 +17,10 @@ function mapStateToProps(state) {
 
     const enableWebrtc = config.EnableWebrtc === 'true';
 
-    const hasManagePublicChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
-    const hasManagePrivateChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
+    const canManagePublicChannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
+    const canManagePrivateChannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
 
-    const canManageChannelMembers = hasManagePublicChannelMembersPermission || hasManagePrivateChannelMembersPermission;
+    const canManageChannelMembers = canManagePublicChannels || canManagePrivateChannels;
 
     return {
         enableWebrtc,

@@ -108,14 +108,14 @@ describe('components/AddUserToChannelModal', () => {
             expect(props.actions.getChannelMember).toBeCalledWith('someChannelId', 'someUserId');
         });
 
-        it('should match state on selection', () => {
-            function emptyFunction() {} //eslint-disable-line no-empty-function
+        it('should match state on selection', async () => {
+            const promise = Promise.resolve({});
             const props = {
                 ...baseProps,
                 actions: {
                     ...baseProps.actions,
                     getChannelMember: jest.fn(() => {
-                        return new Promise(emptyFunction);
+                        return promise;
                     }),
                 },
             };
@@ -137,6 +137,9 @@ describe('components/AddUserToChannelModal', () => {
             expect(wrapper.state().checkingForMembership).toEqual(true);
             expect(wrapper.state().selectedChannelId).toEqual('someChannelId');
             expect(wrapper.state().inviteError).toEqual('');
+
+            await promise;
+            expect(wrapper.state().checkingForMembership).toEqual(false);
         });
     });
 

@@ -4,7 +4,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import {Child as ProfilePopover} from 'components/profile_popover';
+import ProfilePopover from 'components/profile_popover/profile_popover.jsx';
 
 describe('components/ProfilePopover', () => {
     const baseProps = {

@@ -52,7 +52,7 @@ export default function GetIosApp({iosAppDownloadLink, location}) {
                     defaultMessage='Or {link}'
                     values={{
                         link: (
-                            <Link to={`/signup_email${location.search}`}>
+                            <Link to={`/signup_user_complete${location.search}`}>
                                 <FormattedMessage
                                     id='get_app.continueWithBrowserLink'
                                     defaultMessage='continue with browser'

@@ -101,7 +101,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         },
     };
 
-    it('should show public channels if user has public channel manage permission', async () => {
+    it('should show public channels if user has public channel manage permission', () => {
         const mockStore = configureStore();
 
         const state = {
@@ -135,7 +135,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         expect(args.items.length).toEqual(1);
     });
 
-    it('should show private channels if user has private channel manage permission', async () => {
+    it('should show private channels if user has private channel manage permission', () => {
         const mockStore = configureStore();
 
         const state = {
@@ -169,7 +169,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         expect(args.items.length).toEqual(1);
     });
 
-    it('should show both public and private channels if user has public and private channel manage permission', async () => {
+    it('should show both public and private channels if user has public and private channel manage permission', () => {
         const mockStore = configureStore();
 
         const state = {
@@ -202,7 +202,40 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         expect(args.items.length).toEqual(2);
     });
 
-    it('should show nothing if the search does not match', async () => {
+    it('should show nothing if the user does not have permissions to manage channels', () => {
+        const mockStore = configureStore();
+
+        const state = {
+            ...defaultState,
+            entities: {
+                ...defaultState.entities,
+                teams: {
+                    currentTeamId: 'someTeamId',
+                    myMembers: {
+                        someTeamId: {
+                            roles: '',
+                        },
+                    },
+                },
+            },
+        };
+
+        const store = mockStore(state);
+        const searchProvider = new SearchChannelWithPermissionsProvider();
+        const dispatchResults = jest.fn();
+        const getState = jest.fn().mockReturnValue(store.getState());
+        searchProvider.dispatchResults = dispatchResults.bind(searchProvider);
+        searchProvider.getState = getState.bind(searchProvider);
+
+        const searchText = 'some';
+        searchProvider.handlePretextChanged('suggestionId', searchText);
+        jest.runAllTimers();
+        const args = dispatchResults.mock.calls[0][0];
+
+        expect(args.items.length).toEqual(0);
+    });
+
+    it('should show nothing if the search does not match', () => {
         const mockStore = configureStore();
 
         const state = {

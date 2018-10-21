@@ -3,7 +3,7 @@
 
 import {connect} from 'react-redux';
 
-import {haveIChannelPermission} from 'mattermost-redux/selectors/entities/roles';
+import {haveICurrentTeamPermission} from 'mattermost-redux/selectors/entities/roles';
 import {Permissions} from 'mattermost-redux/constants';
 
 import {areTimezonesEnabledAndSupported} from 'selectors/general';
@@ -17,8 +17,8 @@ function mapStateToProps(state) {
 
     const enableWebrtc = config.EnableWebrtc === 'true';
 
-    const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
-    const hasManagePrivateChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
+    const hasManagePublicChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
+    const hasManagePrivateChannelMembersPermission = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
 
     const canManageChannelMembers = hasManagePublicChannelMembersPermission || hasManagePrivateChannelMembersPermission;
 

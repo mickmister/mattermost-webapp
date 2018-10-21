@@ -20,6 +20,7 @@ describe('components/ProfilePopover', () => {
             <ProfilePopover {...props}/>
         );
         expect(wrapper.find('.user-popover__add_to_channel').exists()).toBe(true);
+        expect(wrapper).toMatchSnapshot();
     });
 
     test('should hide "add to channel" button if user does not have permissions to manage channel members', () => {
@@ -29,5 +30,6 @@ describe('components/ProfilePopover', () => {
             <ProfilePopover {...props}/>
         );
         expect(wrapper.find('.user-popover__add_to_channel').exists()).toBe(false);
+        expect(wrapper).toMatchSnapshot();
     });
 });

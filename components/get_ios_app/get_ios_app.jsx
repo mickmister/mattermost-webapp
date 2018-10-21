@@ -10,7 +10,7 @@ import {useSafeUrl} from 'utils/url';
 import AppStoreButton from 'images/app-store-button.png';
 import IPhone6Mockup from 'images/iphone-6-mockup.png';
 
-export default function GetIosApp({iosAppDownloadLink}) {
+export default function GetIosApp({iosAppDownloadLink, location}) {
     return (
         <div className='get-app get-ios-app'>
             <h1 className='get-app__header'>
@@ -52,7 +52,7 @@ export default function GetIosApp({iosAppDownloadLink}) {
                     defaultMessage='Or {link}'
                     values={{
                         link: (
-                            <Link to='/'>
+                            <Link to={`/signup_email${location.search}`}>
                                 <FormattedMessage
                                     id='get_app.continueWithBrowserLink'
                                     defaultMessage='continue with browser'

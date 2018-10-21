@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/ProfilePopover should not show add to channel if user does not have permissions 1`] = `<Connect(ProfilePopover) />`;

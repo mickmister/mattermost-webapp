@@ -15,6 +15,8 @@ import {areTimezonesEnabledAndSupported} from 'selectors/general';
 
 import ProfilePopover from './profile_popover.jsx';
 
+export const Child = ProfilePopover;
+
 function mapStateToProps(state) {
 
     const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});

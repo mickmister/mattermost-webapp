@@ -3,13 +3,16 @@
 
 import React from 'react';
 
+import {getMyChannels, getChannel, getMyChannelMemberships} from 'mattermost-redux/selectors/entities/channels';
+
+import {sortChannelsByTypeAndDisplayName} from 'mattermost-redux/utils/channel_utils';
+
 import {autocompleteChannels} from 'actions/channel_actions.jsx';
 import AppDispatcher from 'dispatcher/app_dispatcher.jsx';
-import ChannelStore from 'stores/channel_store.jsx';
 import SuggestionStore from 'stores/suggestion_store.jsx';
+import store from 'stores/redux_store.jsx';
 
 import {ActionTypes, Constants} from 'utils/constants.jsx';
-import * as ChannelUtils from 'utils/channel_utils.jsx';
 
 import Provider from './provider.jsx';
 import Suggestion from './suggestion.jsx';
@@ -105,7 +108,7 @@ export default class ChannelMentionProvider extends Provider {
         const words = prefix.toLowerCase().split(/\s+/);
         const wrappedChannelIds = {};
         var wrappedChannels = [];
-        ChannelStore.getAll().forEach((item) => {
+        getMyChannels(store.getState()).forEach((item) => {
             if (item.type !== 'O' || item.delete_at > 0) {
                 return;
             }
@@ -137,7 +140,10 @@ export default class ChannelMentionProvider extends Provider {
             });
         });
         wrappedChannels = wrappedChannels.sort((a, b) => {
-            return ChannelUtils.sortChannelsByDisplayName(a.channel, b.channel);
+            //
+            // MM-12677 When this is migrated this needs to be fixed to pull the user's locale
+            //
+            return sortChannelsByTypeAndDisplayName('en', a.channel, b.channel);
         });
         const channelMentions = wrappedChannels.map((item) => '~' + item.channel.name);
         if (channelMentions.length > 0) {
@@ -152,7 +158,7 @@ export default class ChannelMentionProvider extends Provider {
         autocompleteChannels(
             prefix,
             (channels) => {
-                const myMembers = ChannelStore.getMyMembers();
+                const myMembers = getMyChannelMemberships(store.getState());
                 if (this.shouldCancelDispatch(prefix)) {
                     return;
                 }
@@ -168,7 +174,7 @@ export default class ChannelMentionProvider extends Provider {
                     if (item.delete_at > 0 && !myMembers[item.id]) {
                         return;
                     }
-                    if (ChannelStore.get(item.id)) {
+                    if (getChannel(store.getState(), item.id)) {
                         if (!wrappedChannelIds[item.id]) {
                             wrappedChannelIds[item.id] = true;
                             wrappedChannels.push({
@@ -188,7 +194,10 @@ export default class ChannelMentionProvider extends Provider {
                 });
 
                 wrappedChannels = wrappedChannels.sort((a, b) => {
-                    return ChannelUtils.sortChannelsByDisplayName(a.channel, b.channel);
+                    //
+                    // MM-12677 When this is migrated this needs to be fixed to pull the user's locale
+                    //
+                    return sortChannelsByTypeAndDisplayName('en', a.channel, b.channel);
                 });
                 const wrapped = wrappedChannels.concat(wrappedMoreChannels);
                 const mentions = wrapped.map((item) => '~' + item.channel.name);

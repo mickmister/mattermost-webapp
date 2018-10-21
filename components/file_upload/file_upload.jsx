@@ -23,7 +23,6 @@ import {
     generateId,
     isFileTransfer,
     localizeMessage,
-    sortFilesByName,
 } from 'utils/utils.jsx';
 
 import AttachmentIcon from 'components/svg/attachment_icon';
@@ -53,6 +52,10 @@ const holders = defineMessages({
         id: t('file_upload.pasted'),
         defaultMessage: 'Image Pasted at ',
     },
+    uploadFile: {
+        id: t('file_upload.upload_files'),
+        defaultMessage: 'Upload files',
+    },
 });
 
 const OVERLAY_TIMEOUT = 500;
@@ -79,6 +82,8 @@ export default class FileUpload extends PureComponent {
          * Function to get file upload targeted input
          */
         getTarget: PropTypes.func.isRequired,
+
+        locale: PropTypes.string.isRequired,
 
         /**
          * Function to be called when file upload input is clicked
@@ -201,7 +206,7 @@ export default class FileUpload extends PureComponent {
         // clear any existing errors
         this.props.onUploadError(null);
 
-        let sortedFiles = sortFilesByName(files);
+        let sortedFiles = Array.from(files).sort((a, b) => a.name.localeCompare(b.name, this.props.locale, {numeric: true}));
 
         const willUploadHooks = this.props.pluginFilesWillUploadHooks;
         for (const h of willUploadHooks) {
@@ -492,6 +497,7 @@ export default class FileUpload extends PureComponent {
     }
 
     render() {
+        const {formatMessage} = this.context.intl;
         let multiple = true;
         if (isMobileApp()) {
             // iOS WebViews don't upload videos properly in multiple mode
@@ -515,6 +521,7 @@ export default class FileUpload extends PureComponent {
                 >
                     <AttachmentIcon/>
                     <input
+                        aria-label={formatMessage(holders.uploadFile)}
                         ref='fileInput'
                         type='file'
                         onChange={this.handleChange}
@@ -576,6 +583,7 @@ export default class FileUpload extends PureComponent {
                                     defaultMessage='Your computer'
                                 />
                                 <input
+                                    aria-label={formatMessage(holders.uploadFile)}
                                     ref='fileInput'
                                     type='file'
                                     className='file-attachment-menu-item-input'

@@ -2,11 +2,17 @@
 // See LICENSE.txt for license information.
 
 import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+
 import {getConfig, getLicense} from 'mattermost-redux/selectors/entities/general';
+import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
+
+import {getGlobalItem} from 'selectors/storage';
+import {removeGlobalItem} from 'actions/storage';
 
 import SignupController from './signup_controller.jsx';
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
     const license = getLicense(state);
     const config = getConfig(state);
 
@@ -20,9 +26,21 @@ function mapStateToProps(state) {
     const enableLDAP = config.EnableLdap === 'true';
     const enableSAML = config.EnableSaml === 'true';
     const samlLoginButtonText = config.SamlLoginButtonText;
+    const ldapLoginFieldName = config.LdapLoginFieldName;
     const siteName = config.SiteName;
 
+    let usedBefore;
+    if (ownProps.location.search) {
+        const params = new URLSearchParams(ownProps.location.search);
+        let token = params.get('t');
+        if (token == null) {
+            token = '';
+        }
+        usedBefore = getGlobalItem(state, token, null);
+    }
+
     return {
+        loggedIn: Boolean(getCurrentUserId(state)),
         isLicensed,
         enableOpenServer,
         noAccounts,
@@ -33,8 +51,18 @@ function mapStateToProps(state) {
         enableLDAP,
         enableSAML,
         samlLoginButtonText,
+        ldapLoginFieldName,
         siteName,
+        usedBefore,
     };
 }
 
-export default connect(mapStateToProps)(SignupController);
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators({
+            removeGlobalItem,
+        }, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignupController);

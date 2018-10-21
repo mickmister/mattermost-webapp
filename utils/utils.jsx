@@ -18,17 +18,15 @@ import {browserHistory} from 'utils/browser_history';
 import {searchForTerm} from 'actions/post_actions';
 import UserStore from 'stores/user_store.jsx';
 import ChannelStore from 'stores/channel_store.jsx';
-import LocalizationStore from 'stores/localization_store.jsx';
 import PreferenceStore from 'stores/preference_store.jsx';
 import TeamStore from 'stores/team_store.jsx';
 import Constants, {FileTypes, UserStatuses} from 'utils/constants.jsx';
 import * as UserAgent from 'utils/user_agent.jsx';
 import bing from 'images/bing.mp3';
-import icon50 from 'images/icon50x50.png';
-import iconWS from 'images/icon_WS.png';
-import {getSiteURL} from 'utils/url';
 import {t} from 'utils/i18n';
 import store from 'stores/redux_store.jsx';
+import {showNotification} from 'utils/notifications.jsx';
+import {getCurrentLocale, getTranslations} from 'selectors/i18n';
 
 export function isMac() {
     return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
@@ -121,62 +119,6 @@ export function isSystemAdmin(roles) {
     }
 
     return false;
-}
-
-let requestedNotificationPermission = false;
-
-// showNotification displays a platform notification with the configured parameters.
-//
-// If successful in showing a notification, it resolves with a callback to manually close the
-// notification. Notifications that do not require interaction will be closed automatically after
-// the Constants.DEFAULT_NOTIFICATION_DURATION. Not all platforms support all features, and may
-// choose different semantics for the notifications.
-export async function showNotification({title, body, requireInteraction, silent, onClick}) {
-    let icon = icon50;
-    if (UserAgent.isEdge()) {
-        icon = iconWS;
-    }
-
-    if (!('Notification' in window)) {
-        throw new Error('Notification not supported');
-    }
-
-    if (typeof Notification.requestPermission !== 'function') {
-        throw new Error('Notifications.requestPermission not supported');
-    }
-
-    if (Notification.permission !== 'granted' && requestedNotificationPermission) {
-        throw new Error('Notifications already requested but not granted');
-    }
-
-    requestedNotificationPermission = true;
-
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-        throw new Error('Notifications not granted');
-    }
-
-    const notification = new Notification(title, {
-        body,
-        tag: body,
-        icon,
-        requireInteraction,
-        silent,
-    });
-
-    if (onClick) {
-        notification.onclick = onClick;
-    }
-
-    if (!requireInteraction) {
-        setTimeout(() => {
-            notification.close();
-        }, Constants.DEFAULT_NOTIFICATION_DURATION);
-    }
-
-    return () => {
-        notification.close();
-    };
 }
 
 export function notifyMe(title, body, channel, teamId, silent) {
@@ -529,11 +471,6 @@ export function getIconClassName(fileTypeIn) {
     }
 
     return 'generic';
-}
-
-export function sortFilesByName(files) {
-    const locale = LocalizationStore.getLocale();
-    return Array.from(files).sort((a, b) => a.name.localeCompare(b.name, locale, {numeric: true}));
 }
 
 export function toTitleCase(str) {
@@ -1501,19 +1438,16 @@ export function getRootId(post) {
 }
 
 export function localizeMessage(id, defaultMessage) {
-    const translations = LocalizationStore.getTranslations();
-    if (translations) {
-        const value = translations[id];
-        if (value) {
-            return value;
-        }
+    const state = store.getState();
+
+    const locale = getCurrentLocale(state);
+    const translations = getTranslations(state, locale);
+
+    if (!translations || !(id in translations)) {
+        return defaultMessage || id;
     }
 
-    if (defaultMessage) {
-        return defaultMessage;
-    }
-
-    return id;
+    return translations[id];
 }
 
 export function mod(a, b) {
@@ -1690,11 +1624,7 @@ export function copyToClipboard(data) {
     textArea.style.outline = 'none';
     textArea.style.boxShadow = 'none';
     textArea.style.background = 'transparent';
-    if (typeof data === 'string') {
-        textArea.value = data;
-    } else {
-        textArea.value = getSiteURL() + data.link;
-    }
+    textArea.value = data;
     document.body.appendChild(textArea);
     textArea.select();
     document.execCommand('copy');

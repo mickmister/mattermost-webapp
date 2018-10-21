@@ -2,7 +2,8 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import {shallow} from 'enzyme';
+
+import {General} from 'mattermost-redux/constants';
 
 import {clearFileInput} from 'utils/utils';
 import {shallowWithIntl} from 'tests/helpers/intl-test-helper';
@@ -38,6 +39,7 @@ describe('components/FileUpload', () => {
         intl: {},
         fileCount: 1,
         getTarget: emptyFunction,
+        locale: General.DEFAULT_LOCALE,
         onClick: emptyFunction,
         onFileUpload: emptyFunction,
         onFileUploadChange: emptyFunction,
@@ -51,7 +53,7 @@ describe('components/FileUpload', () => {
     };
 
     test('should match snapshot', () => {
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...baseProps}/>
         );
 
@@ -62,7 +64,7 @@ describe('components/FileUpload', () => {
         const onClick = jest.fn();
         const props = {...baseProps, onClick};
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...props}/>
         );
 
@@ -73,7 +75,7 @@ describe('components/FileUpload', () => {
     test('should match state and call handleMaxUploadReached or props.onClick on handleLocalFileUploaded', () => {
         const onClick = jest.fn();
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload
                 {...baseProps}
                 onClick={onClick}
@@ -109,7 +111,7 @@ describe('components/FileUpload', () => {
             client_ids: {id1: 'id1'},
         };
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...props}/>
         );
 
@@ -129,7 +131,7 @@ describe('components/FileUpload', () => {
             rootId: 'root_id',
         };
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...props}/>
         );
 
@@ -230,7 +232,7 @@ describe('components/FileUpload', () => {
         const onFileUploadChange = jest.fn();
         const props = {...baseProps, onFileUploadChange};
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...props}/>
         );
 
@@ -254,7 +256,7 @@ describe('components/FileUpload', () => {
         const onFileUploadChange = jest.fn();
         const props = {...baseProps, onUploadError, onFileUploadChange};
 
-        const wrapper = shallow(
+        const wrapper = shallowWithIntl(
             <FileUpload {...props}/>
         );
 

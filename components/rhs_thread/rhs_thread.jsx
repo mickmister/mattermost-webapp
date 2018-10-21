@@ -10,7 +10,6 @@ import {Posts} from 'mattermost-redux/constants';
 
 import PreferenceStore from 'stores/preference_store.jsx';
 import UserStore from 'stores/user_store.jsx';
-import WebrtcStore from 'stores/webrtc_store.jsx';
 import Constants from 'utils/constants.jsx';
 import DelayedAction from 'utils/delayed_action.jsx';
 import * as Utils from 'utils/utils.jsx';
@@ -20,7 +19,7 @@ import DateSeparator from 'components/post_view/date_separator.jsx';
 import FloatingTimestamp from 'components/post_view/floating_timestamp.jsx';
 import RhsComment from 'components/rhs_comment';
 import RhsHeaderPost from 'components/rhs_header_post';
-import RootPost from 'components/rhs_root_post';
+import RhsRootPost from 'components/rhs_root_post';
 import FormattedMarkdownMessage from 'components/formatted_markdown_message';
 
 const Preferences = Constants.Preferences;
@@ -55,7 +54,6 @@ export default class RhsThread extends React.Component {
         channel: PropTypes.object.isRequired,
         selected: PropTypes.object.isRequired,
         previousRhsState: PropTypes.string,
-        isWebrtc: PropTypes.bool,
         currentUser: PropTypes.object.isRequired,
         previewCollapsed: PropTypes.string.isRequired,
         previewEnabled: PropTypes.bool.isRequired,
@@ -79,7 +77,6 @@ export default class RhsThread extends React.Component {
             flaggedPosts: PreferenceStore.getCategory(Constants.Preferences.CATEGORY_FLAGGED_POST),
             statuses: Object.assign({}, UserStore.getStatuses()),
             previewsCollapsed: PreferenceStore.get(Preferences.CATEGORY_DISPLAY_SETTINGS, Preferences.COLLAPSE_DISPLAY, 'false'),
-            isBusy: WebrtcStore.isBusy(),
             isScrolling: false,
             topRhsPostCreateAt: 0,
             openTime,
@@ -90,7 +87,6 @@ export default class RhsThread extends React.Component {
         PreferenceStore.addChangeListener(this.onPreferenceChange);
         UserStore.addChangeListener(this.onUserChange);
         UserStore.addStatusesChangeListener(this.onStatusChange);
-        WebrtcStore.addBusyListener(this.onBusy);
 
         this.scrollToBottom();
         window.addEventListener('resize', this.handleResize);
@@ -100,7 +96,6 @@ export default class RhsThread extends React.Component {
         PreferenceStore.removeChangeListener(this.onPreferenceChange);
         UserStore.removeChangeListener(this.onUserChange);
         UserStore.removeStatusesChangeListener(this.onStatusChange);
-        WebrtcStore.removeBusyListener(this.onBusy);
 
         window.removeEventListener('resize', this.handleResize);
     }
@@ -432,7 +427,6 @@ export default class RhsThread extends React.Component {
                 />
                 <RhsHeaderPost
                     previousRhsState={this.props.previousRhsState}
-                    isWebrtc={this.props.isWebrtc}
                 />
                 <Scrollbars
                     autoHide={true}
@@ -445,7 +439,7 @@ export default class RhsThread extends React.Component {
                 >
                     <div className='post-right__scroll'>
                         {!isFakeDeletedPost && <DateSeparator date={rootPostDay}/>}
-                        <RootPost
+                        <RhsRootPost
                             ref={selected.id}
                             post={selected}
                             commentCount={postsLength}

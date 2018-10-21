@@ -3,6 +3,7 @@
 
 /* eslint max-nested-callbacks: ["error", 3] */
 
+import Observable from 'zen-observable';
 import localForage from 'localforage';
 import {extendPrototype} from 'localforage-observable';
 import {createTransform, persistStore} from 'redux-persist';
@@ -56,6 +57,8 @@ const whitelist = {
         return -1;
     },
 };
+
+window.Observable = Observable;
 
 export default function configureStore(initialState) {
     const setTransformer = createTransform(
@@ -147,17 +150,9 @@ export default function configureStore(initialState) {
                         persistor.purge().then(() => {
                             document.cookie = 'MMUSERID=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 
-                            // Preserve any `extra` query string parameter on logout to trigger
-                            // the corresponding message on the login page. This would probably be
-                            // better modelled by persistent data in the Redux store, but we're
-                            // clearing that out here.
-                            const search = new URLSearchParams(window.location.search);
-                            const extra = search.get('extra');
-                            if (extra) {
-                                window.location.href = `${basePath}?extra=${extra}`;
-                            } else {
-                                window.location.href = basePath;
-                            }
+                            // Preserve any query string parameters on logout, including parameters
+                            // used by the application such as extra and redirect_to.
+                            window.location.href = `${basePath}${window.location.search}`;
 
                             store.dispatch({
                                 type: General.OFFLINE_STORE_RESET,

@@ -11,7 +11,7 @@ import AnalyticsStore from 'stores/analytics_store.jsx';
 import ErrorStore from 'stores/error_store.jsx';
 
 import {AnnouncementBarTypes, AnnouncementBarMessages, StatTypes, StoragePrefixes} from 'utils/constants.jsx';
-import {displayExpiryDate, isLicenseExpired, isLicenseExpiring, isLicensePastGracePeriod} from 'utils/license_utils.jsx';
+import {isLicenseExpired, isLicenseExpiring, isLicensePastGracePeriod} from 'utils/license_utils.jsx';
 import * as TextFormatting from 'utils/text_formatting.jsx';
 import * as Utils from 'utils/utils.jsx';
 import {t} from 'utils/i18n';
@@ -33,7 +33,7 @@ export default class AnnouncementBar extends React.PureComponent {
          */
         canViewSystemErrors: PropTypes.bool.isRequired,
         canViewAPIv3Banner: PropTypes.bool.isRequired,
-        licenseId: PropTypes.string,
+        license: PropTypes.object,
         siteURL: PropTypes.string,
         sendEmailNotifications: PropTypes.bool.isRequired,
         bannerText: PropTypes.string,
@@ -196,24 +196,9 @@ export default class AnnouncementBar extends React.PureComponent {
         return {message: null, color: null, colorText: null, textColor: null, type: null, allowDismissal: true};
     }
 
-    isValidState(s) {
-        if (!s) {
-            return false;
-        }
-
-        if (!s.message) {
-            return false;
-        }
-
-        if (s.message === AnnouncementBarMessages.LICENSE_EXPIRING && !this.state.totalUsers) {
-            return false;
-        }
-
-        return true;
-    }
-
     componentDidMount() {
-        if (this.props.isLoggedIn && !this.state.allowDismissal) {
+        const isFixed = this.shouldRender(this.props, this.state) && !this.state.allowDismissal;
+        if (isFixed) {
             document.body.classList.add('announcement-bar--fixed');
         }
 
@@ -239,10 +224,13 @@ export default class AnnouncementBar extends React.PureComponent {
             return;
         }
 
-        if (!prevState.allowDismissal && this.state.allowDismissal) {
-            document.body.classList.remove('announcement-bar--fixed');
-        } else if (prevState.allowDismissal && !this.state.allowDismissal) {
+        const wasFixed = this.shouldRender(prevProps, prevState) && !prevState.allowDismissal;
+        const isFixed = this.shouldRender(this.props, this.state) && !this.state.allowDismissal;
+
+        if (!wasFixed && isFixed) {
             document.body.classList.add('announcement-bar--fixed');
+        } else if (wasFixed && !isFixed) {
+            document.body.classList.remove('announcement-bar--fixed');
         }
     }
 
@@ -284,12 +272,28 @@ export default class AnnouncementBar extends React.PureComponent {
         this.setState(this.getState());
     }
 
-    render() {
-        if (!this.isValidState(this.state)) {
-            return <div/>;
+    shouldRender(props, state) {
+        if (!state) {
+            return false;
         }
 
-        if (!this.props.isLoggedIn && this.state.type === AnnouncementBarTypes.ANNOUNCEMENT) {
+        if (!state.message) {
+            return false;
+        }
+
+        if (state.message === AnnouncementBarMessages.LICENSE_EXPIRING && !state.totalUsers) {
+            return false;
+        }
+
+        if (!props.isLoggedIn && state.type === AnnouncementBarTypes.ANNOUNCEMENT) {
+            return false;
+        }
+
+        return true;
+    }
+
+    render() {
+        if (!this.shouldRender(this.props, this.state)) {
             return <div/>;
         }
 
@@ -324,7 +328,7 @@ export default class AnnouncementBar extends React.PureComponent {
             );
         }
 
-        const renewalLink = RENEWAL_LINK + '?id=' + this.props.licenseId + '&user_count=' + this.state.totalUsers;
+        const renewalLink = RENEWAL_LINK + '?id=' + this.props.license.id + '&user_count=' + this.state.totalUsers;
 
         let message = this.state.message;
         if (this.state.type === AnnouncementBarTypes.ANNOUNCEMENT) {
@@ -344,9 +348,9 @@ export default class AnnouncementBar extends React.PureComponent {
             message = (
                 <FormattedMarkdownMessage
                     id={AnnouncementBarMessages.LICENSE_EXPIRING}
-                    defaultMessage='Enterprise license expires on {date}. [Prease renew](!{link}).'
+                    defaultMessage='Enterprise license expires on {date, date, long}. [Please renew](!{link}).'
                     values={{
-                        date: displayExpiryDate(),
+                        date: new Date(parseInt(this.props.license.ExpiresAt, 10)),
                         link: renewalLink,
                     }}
                 />

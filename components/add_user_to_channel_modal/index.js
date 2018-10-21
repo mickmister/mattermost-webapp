@@ -6,7 +6,7 @@ import {bindActionCreators} from 'redux';
 import {addChannelMember, getChannelMember} from 'mattermost-redux/actions/channels';
 import {getChannelMembersInChannels} from 'mattermost-redux/selectors/entities/channels';
 
-import AddUsersToChannel from './add_user_to_channel_modal';
+import AddUserToChannelModal from './add_user_to_channel_modal.jsx';
 
 function mapStateToProps(state) {
     const channelMembers = getChannelMembersInChannels(state) || {};
@@ -24,4 +24,4 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddUsersToChannel);
+export default connect(mapStateToProps, mapDispatchToProps)(AddUserToChannelModal);

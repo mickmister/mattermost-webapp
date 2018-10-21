@@ -76,9 +76,11 @@ class ProfilePopover extends React.Component {
         enableWebrtc: PropTypes.bool.isRequired,
 
         /**
-         * Whether or not we should show the "Add to Channel" button
+         * Whether or not the current user has permissions to manage members
+         * of either public channels or private channels.
+         * This determines whether or not we should show the "Add to Channel" button.
          */
-        shouldShowAddToChannelButton: PropTypes.bool.isRequired,
+        canManageChannelMembers: PropTypes.bool.isRequired,
 
         ...Popover.propTypes,
     }
@@ -210,8 +212,7 @@ class ProfilePopover extends React.Component {
         delete popoverProps.dispatch;
         delete popoverProps.enableWebrtc;
         delete popoverProps.enableTimezone;
-        delete popoverProps.hasManagePublicChannelMembersPermission;
-        delete popoverProps.hasManagePrivateChannelMembersPermission;
+        delete popoverProps.canManageChannelMembers;
 
         let webrtc;
         const webrtcEnabled = this.props.enableWebrtc && Utils.isUserMediaAvailable();
@@ -408,7 +409,7 @@ class ProfilePopover extends React.Component {
                 </div>
             );
 
-            if (this.props.shouldShowAddToChannelButton) {
+            if (this.props.canManageChannelMembers) {
                 dataContent.push(
                     <div
                         data-toggle='tooltip'
@@ -417,7 +418,7 @@ class ProfilePopover extends React.Component {
                     >
                         <a
                             href='#'
-                            className='text-nowrap user-popover__email'
+                            className='text-nowrap user-popover__add_to_channel'
                         >
                             <ToggleModalButtonRedux
                                 ref='addUserToChannelModalButton'
@@ -429,10 +430,10 @@ class ProfilePopover extends React.Component {
                             >
                                 <i
                                     className='fa fa-user-plus'
-                                    title={Utils.localizeMessage('user_profile.add.channel.icon', 'Add User to Channel Icon')}
+                                    title={Utils.localizeMessage('user_profile.add_user_to_channel.icon', 'Add User to Channel Icon')}
                                 />
                                 <FormattedMessage
-                                    id='user_profile.add.channel'
+                                    id='user_profile.add_user_to_channel'
                                     defaultMessage='Add to a Channel'
                                 />
                             </ToggleModalButtonRedux>

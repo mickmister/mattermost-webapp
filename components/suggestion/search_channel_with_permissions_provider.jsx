@@ -4,13 +4,12 @@
 import React from 'react';
 import {
     getChannelsInCurrentTeam,
-    getDirectAndGroupChannels,
 } from 'mattermost-redux/selectors/entities/channels';
 import {getMyChannelMemberships} from 'mattermost-redux/selectors/entities/common';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 import * as ChannelActions from 'mattermost-redux/actions/channels';
-import {haveIChannelPermission} from 'mattermost-redux/selectors/entities/roles';
+import {haveICurrentTeamPermission} from 'mattermost-redux/selectors/entities/roles';
 import {Permissions} from 'mattermost-redux/constants';
 
 import GlobeIcon from 'components/svg/globe_icon';
@@ -23,8 +22,6 @@ import {ActionTypes, Constants} from 'utils/constants.jsx';
 
 import Provider from './provider.jsx';
 import Suggestion from './suggestion.jsx';
-
-const getState = store.getState;
 
 class SearchChannelWithPermissionsSuggestion extends Suggestion {
     static get propTypes() {
@@ -102,23 +99,34 @@ function channelSearchSorter(wrappedA, wrappedB) {
     return 1;
 }
 
-function makeChannelSearchFilter(channelPrefix) {
-    const channelPrefixLower = channelPrefix.toLowerCase();
-
-    return (channel) => {
-        const searchString = channel.display_name;
-        return searchString.toLowerCase().includes(channelPrefixLower);
-    };
-}
-
 export default class SearchChannelWithPermissionsProvider extends Provider {
+    makeChannelSearchFilter(channelPrefix) {
+        const channelPrefixLower = channelPrefix.toLowerCase();
+
+        return (channel) => {
+            const state = this.getState();
+            const canManagePublicChannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
+            const canManagePrivatehannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
+            const searchString = channel.display_name;
+
+            if (canManagePublicChannels && channel.type === Constants.OPEN_CHANNEL) {
+                return searchString.toLowerCase().includes(channelPrefixLower);
+            }
+            if (canManagePrivatehannels && channel.type === Constants.PRIVATE_CHANNEL) {
+                return searchString.toLowerCase().includes(channelPrefixLower);
+            }
+            return false;
+        };
+    }
+
     handlePretextChanged(suggestionId, channelPrefix) {
         if (channelPrefix) {
             prefix = channelPrefix;
             this.startNewRequest(suggestionId, channelPrefix);
+            const state = this.getState();
 
             // Dispatch suggestions for local data
-            const channels = getChannelsInCurrentTeam(getState()).concat(getDirectAndGroupChannels(getState()));
+            const channels = getChannelsInCurrentTeam(state);
             this.formatChannelsAndDispatch(channelPrefix, suggestionId, channels);
 
             // Fetch data from the server and dispatch
@@ -129,13 +137,13 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
     }
 
     async fetchChannels(channelPrefix, suggestionId) {
-        const state = getState();
+        const state = this.getState();
         const teamId = getCurrentTeamId(state);
         if (!teamId) {
             return;
         }
 
-        const channelsAsync = ChannelActions.searchChannels(teamId, channelPrefix)(store.dispatch, store.getState);
+        const channelsAsync = ChannelActions.autocompleteChannelsForSearch(teamId, channelPrefix)(this.dispatch, this.getState);
 
         let channelsFromServer = [];
         try {
@@ -152,14 +160,16 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             return;
         }
 
-        const channels = getChannelsInCurrentTeam(state).concat(getDirectAndGroupChannels(state)).concat(channelsFromServer);
+        const channels = getChannelsInCurrentTeam(state).concat(channelsFromServer);
         this.formatChannelsAndDispatch(channelPrefix, suggestionId, channels);
     }
 
     formatChannelsAndDispatch(channelPrefix, suggestionId, allChannels) {
         const channels = [];
 
-        const members = getMyChannelMemberships(getState());
+        const state = this.getState();
+
+        const members = getMyChannelMemberships(state);
 
         if (this.shouldCancelDispatch(channelPrefix)) {
             return;
@@ -167,13 +177,10 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
 
         const completedChannels = {};
 
-        const channelFilter = makeChannelSearchFilter(channelPrefix);
+        const channelFilter = this.makeChannelSearchFilter(channelPrefix);
 
-        const state = getState();
         const config = getConfig(state);
         const viewArchivedChannels = config.ExperimentalViewArchivedChannels === 'true';
-        const hasManagePublicChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
-        const hasManagePrivateChannelMembersPermission = haveIChannelPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
 
         for (const id of Object.keys(allChannels)) {
             const channel = allChannels[id];
@@ -193,9 +200,9 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
                     continue;
                 } else if (channelIsArchived && !members[channel.id]) {
                     continue;
-                } else if (hasManagePublicChannelMembersPermission && channel.type === Constants.OPEN_CHANNEL) {
+                } else if (channel.type === Constants.OPEN_CHANNEL) {
                     wrappedChannel.type = Constants.OPEN_CHANNEL;
-                } else if (hasManagePrivateChannelMembersPermission && channel.type === Constants.PRIVATE_CHANNEL) {
+                } else if (channel.type === Constants.PRIVATE_CHANNEL) {
                     wrappedChannel.type = Constants.PRIVATE_CHANNEL;
                 } else {
                     continue;
@@ -210,7 +217,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             map((wrappedChannel) => wrappedChannel.channel.name);
 
         setTimeout(() => {
-            AppDispatcher.handleServerAction({
+            this.appDispatch({
                 type: ActionTypes.SUGGESTION_RECEIVED_SUGGESTIONS,
                 id: suggestionId,
                 matchedPretext: channelPrefix,
@@ -219,5 +226,13 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
                 component: SearchChannelWithPermissionsSuggestion,
             });
         }, 0);
+    }
+
+    getState = store.getState;
+
+    dispatch = store.dispatch;
+
+    appDispatch = (results) => {
+        AppDispatcher.handleServerAction(results);
     }
 }

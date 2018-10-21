@@ -38,7 +38,7 @@ exports[`components/AddUserToChannelModal should match snapshot 1`] = `
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -77,7 +77,10 @@ exports[`components/AddUserToChannelModal should match snapshot 1`] = `
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -163,7 +166,7 @@ exports[`components/AddUserToChannelModal should match snapshot if user is a mem
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -202,7 +205,10 @@ exports[`components/AddUserToChannelModal should match snapshot if user is a mem
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -301,7 +307,7 @@ exports[`components/AddUserToChannelModal should match snapshot when a channel i
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -340,7 +346,10 @@ exports[`components/AddUserToChannelModal should match snapshot when a channel i
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -431,7 +440,7 @@ exports[`components/AddUserToChannelModal should match snapshot when a channel i
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -470,7 +479,10 @@ exports[`components/AddUserToChannelModal should match snapshot when a channel i
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -561,7 +573,7 @@ exports[`components/AddUserToChannelModal should match snapshot when an error me
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -600,7 +612,10 @@ exports[`components/AddUserToChannelModal should match snapshot when an error me
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -691,7 +706,7 @@ exports[`components/AddUserToChannelModal should match snapshot when membership 
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -730,7 +745,10 @@ exports[`components/AddUserToChannelModal should match snapshot when membership 
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,
@@ -816,7 +834,7 @@ exports[`components/AddUserToChannelModal should match snapshot when saving 1`] 
       componentClass="h4"
     >
       <FormattedMessage
-        defaultMessage="Add {name} to a channel."
+        defaultMessage="Add {name} to a channel"
         id="add_user_to_channel_modal.title"
         values={
           Object {
@@ -855,7 +873,10 @@ exports[`components/AddUserToChannelModal should match snapshot when saving 1`] 
       providers={
         Array [
           SearchChannelWithPermissionsProvider {
+            "appDispatch": [Function],
             "disableDispatches": false,
+            "dispatch": [Function],
+            "getState": [Function],
             "latestComplete": true,
             "latestPrefix": "",
             "requestStarted": false,

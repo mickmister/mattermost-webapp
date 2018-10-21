@@ -1,3 +1,148 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`components/ProfilePopover should not show add to channel if user does not have permissions 1`] = `<Connect(ProfilePopover) />`;
+exports[`components/ProfilePopover should hide "add to channel" button if user does not have permissions to manage channel members 1`] = `
+<Popover
+  bsClass="popover"
+  id="user-profile-popover"
+  placement="right"
+  title="@undefined"
+>
+  <img
+    alt="user profile image"
+    className="user-popover__image"
+    height="128"
+    key="user-popover-image"
+    src="src"
+    width="128"
+  />
+  <Connect(Pluggable)
+    key="profilePopoverPluggable2"
+    pluggableName="PopoverUserAttributes"
+    user={
+      Object {
+        "name": "name",
+      }
+    }
+  />
+  <div
+    className="popover__row first"
+    data-toggle="tooltip"
+    key="user-popover-dm"
+  >
+    <a
+      className="text-nowrap user-popover__email"
+      href="#"
+      onClick={[Function]}
+    >
+      <i
+        className="fa fa-paper-plane"
+        title="Send Message Icon"
+      />
+      <FormattedMessage
+        defaultMessage="Send Message"
+        id="user_profile.send.dm"
+        values={Object {}}
+      />
+    </a>
+  </div>
+  <Connect(Pluggable)
+    key="profilePopoverPluggable3"
+    pluggableName="PopoverUserActions"
+    user={
+      Object {
+        "name": "name",
+      }
+    }
+  />
+</Popover>
+`;
+
+exports[`components/ProfilePopover should show "add to channel" button if user has permissions to manage channel members 1`] = `
+<Popover
+  bsClass="popover"
+  id="user-profile-popover"
+  placement="right"
+  title="@undefined"
+>
+  <img
+    alt="user profile image"
+    className="user-popover__image"
+    height="128"
+    key="user-popover-image"
+    src="src"
+    width="128"
+  />
+  <Connect(Pluggable)
+    key="profilePopoverPluggable2"
+    pluggableName="PopoverUserAttributes"
+    user={
+      Object {
+        "name": "name",
+      }
+    }
+  />
+  <div
+    className="popover__row first"
+    data-toggle="tooltip"
+    key="user-popover-dm"
+  >
+    <a
+      className="text-nowrap user-popover__email"
+      href="#"
+      onClick={[Function]}
+    >
+      <i
+        className="fa fa-paper-plane"
+        title="Send Message Icon"
+      />
+      <FormattedMessage
+        defaultMessage="Send Message"
+        id="user_profile.send.dm"
+        values={Object {}}
+      />
+    </a>
+  </div>
+  <div
+    className="popover__row first"
+    data-toggle="tooltip"
+    key="user-popover-invite"
+  >
+    <a
+      className="text-nowrap user-popover__add_to_channel"
+      href="#"
+    >
+      <Connect(ModalToggleButtonRedux)
+        dialogProps={
+          Object {
+            "user": Object {
+              "name": "name",
+            },
+          }
+        }
+        dialogType={[Function]}
+        modalId="add_user_to_channel"
+        role="menuitem"
+      >
+        <i
+          className="fa fa-user-plus"
+          title="Add User to Channel Icon"
+        />
+        <FormattedMessage
+          defaultMessage="Add to a Channel"
+          id="user_profile.add_user_to_channel"
+          values={Object {}}
+        />
+      </Connect(ModalToggleButtonRedux)>
+    </a>
+  </div>
+  <Connect(Pluggable)
+    key="profilePopoverPluggable3"
+    pluggableName="PopoverUserActions"
+    user={
+      Object {
+        "name": "name",
+      }
+    }
+  />
+</Popover>
+`;

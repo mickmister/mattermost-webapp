@@ -161,7 +161,7 @@
   "add_user_to_channel_modal.add": "Add",
   "add_user_to_channel_modal.membershipExistsError": "{name} is already a member of that channel",
   "add_user_to_channel_modal.help": "Type to find a channel. Use ↑↓ to browse, ↵ to select, ESC to dismiss.",
-  "add_user_to_channel_modal.title": "Add {name} to a channel.",
+  "add_user_to_channel_modal.title": "Add {name} to a channel",
   "add_users_to_team.title": "Add New Members To {teamName} Team",
   "admin.advance.cluster": "High Availability",
   "admin.advance.metrics": "Performance Monitoring",

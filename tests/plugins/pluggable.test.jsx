@@ -31,6 +31,15 @@ describe('plugins/Pluggable', () => {
             preferences: {
                 myPreferences: {},
             },
+            channels: {
+                myMembers: {},
+            },
+            roles: {
+                roles: {},
+            },
+            users: {
+                profiles: {},
+            },
         },
         plugins: {
             components: {},

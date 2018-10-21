@@ -238,6 +238,7 @@ exports[`plugins/Pluggable should match snapshot with no overridden component 1`
       }
     >
       <ProfilePopover
+        canManageChannelMembers={false}
         dispatch={[Function]}
         enableTimezone={false}
         enableWebrtc={true}

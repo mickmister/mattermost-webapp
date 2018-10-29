@@ -283,7 +283,7 @@ export default class CreatePost extends React.Component {
         this.setState({showEmojiPicker: false});
     }
 
-    doSubmit = (e) => {
+    doSubmit = (e, options = {}) => {
         const channelId = this.props.currentChannel.id;
         if (e) {
             e.preventDefault();
@@ -295,7 +295,7 @@ export default class CreatePost extends React.Component {
 
         const post = {};
         post.file_ids = [];
-        post.message = this.state.message;
+        post.message = options.message || this.state.message;
 
         if (post.message.trim().length === 0 && this.props.draft.fileInfos.length === 0) {
             return;
@@ -314,7 +314,7 @@ export default class CreatePost extends React.Component {
         this.setState({submitting: true, serverError: null});
 
         const isReaction = Utils.REACTION_PATTERN.exec(post.message);
-        if (post.message.indexOf('/') === 0) {
+        if (post.message.indexOf('/') === 0 && !options.ignoreSlash) {
             this.setState({message: '', postError: null, enableSendButton: false});
             const args = {};
             args.channel_id = channelId;
@@ -327,9 +327,17 @@ export default class CreatePost extends React.Component {
                             this.sendMessage(post);
                         } else {
                             this.setState({
-                                serverError: error.message,
+                                serverError: {
+                                    ...error,
+                                    submittedMessage: post.message,
+                                },
                                 message: post.message,
                             });
+                        }
+                        if (this.isErrorInvalidSlashCommand(error)) {
+                            setTimeout(() => {
+                                this.focusSendAsMessageLink();
+                            }, 0);
                         }
                     }
                 }
@@ -355,6 +363,26 @@ export default class CreatePost extends React.Component {
         const forceFocus = (Date.now() - this.lastBlurAt < fasterThanHumanWillClick);
 
         this.focusTextbox(forceFocus);
+    }
+
+    isErrorInvalidSlashCommand = (error) => {
+        if (!(error && error.server_error_id)) {
+            return false;
+        }
+
+        return error.server_error_id === 'api.command.execute_command.not_found.app_error';
+    }
+
+    forceSubmit = (e, message) => {
+        this.doSubmit(e, {message, ignoreSlash: true});
+    }
+
+    forceSendRejectedMessage = (e) => {
+        if (!(this.state.serverError && this.state.serverError.submittedMessage)) {
+            return;
+        }
+
+        this.forceSubmit(e, this.state.serverError.submittedMessage);
     }
 
     handleNotifyAllConfirmation = (e) => {
@@ -488,6 +516,12 @@ export default class CreatePost extends React.Component {
         }
     }
 
+    focusSendAsMessageLink = (keepFocus = false) => {
+        if (this.refs.sendAsMessageLink && (keepFocus || !UserAgent.isMobile())) {
+            this.refs.sendAsMessageLink.focus();
+        }
+    }
+
     postMsgKeyPress = (e) => {
         const {ctrlSend, codeBlockOnCtrlEnter, currentChannel} = this.props;
 
@@ -593,7 +627,7 @@ export default class CreatePost extends React.Component {
             }
         }
 
-        this.setState({serverError: message});
+        this.setState({serverError: {message}});
     }
 
     removePreview = (id) => {
@@ -882,9 +916,40 @@ export default class CreatePost extends React.Component {
 
         let serverError = null;
         if (this.state.serverError) {
+            let serverErrorContent = this.state.serverError.message;
+
+            if (this.isErrorInvalidSlashCommand(this.state.serverError)) {
+                const storedMessage = this.state.serverError.submittedMessage;
+                const command = storedMessage.split(' ')[0];
+
+                serverErrorContent = (
+                    <FormattedMessage
+                        id='create_post.invalidCommand'
+                        defaultMessage={'Command with a trigger of \'{command}\' not found. {send_as_message}'}
+                        values={{
+                            command,
+                            send_as_message: (
+                                <a
+                                    ref='sendAsMessageLink'
+                                    href='#'
+                                    onClick={this.forceSendRejectedMessage}
+                                    className='create-post__send-as-message'
+                                >
+                                    <FormattedMessage
+                                        id='create_post.sendAsMessageLink'
+                                        defaultMessage='Click here to send as a message.'
+                                    />
+                                </a>
+                            ),
+                        }}
+                    />
+                );
+            }
             serverError = (
                 <div className='has-error'>
-                    <label className='control-label'>{this.state.serverError}</label>
+                    <label className='control-label'>
+                        {serverErrorContent}
+                    </label>
                 </div>
             );
         }

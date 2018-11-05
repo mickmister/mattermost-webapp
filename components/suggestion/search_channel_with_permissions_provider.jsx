@@ -9,15 +9,16 @@ import {getMyChannelMemberships} from 'mattermost-redux/selectors/entities/commo
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 import * as ChannelActions from 'mattermost-redux/actions/channels';
+import {getCurrentUserLocale} from 'mattermost-redux/selectors/entities/i18n';
 import {haveICurrentTeamPermission} from 'mattermost-redux/selectors/entities/roles';
 import {Permissions} from 'mattermost-redux/constants';
+import {sortChannelsByTypeAndDisplayName} from 'mattermost-redux/utils/channel_utils';
 
 import GlobeIcon from 'components/svg/globe_icon';
 import LockIcon from 'components/svg/lock_icon';
 import ArchiveIcon from 'components/svg/archive_icon';
 import AppDispatcher from 'dispatcher/app_dispatcher.jsx';
 import store from 'stores/redux_store.jsx';
-import {getChannelDisplayName, sortChannelsByDisplayName} from 'utils/channel_utils.jsx';
 import {ActionTypes, Constants} from 'utils/constants.jsx';
 
 import Provider from './provider.jsx';
@@ -80,18 +81,20 @@ function channelSearchSorter(wrappedA, wrappedB) {
         return -1;
     }
 
+    const locale = getCurrentUserLocale(store.getState());
+
     const a = wrappedA.channel;
     const b = wrappedB.channel;
 
-    const aDisplayName = getChannelDisplayName(a).toLowerCase();
-    const bDisplayName = getChannelDisplayName(b).toLowerCase();
+    const aDisplayName = a.display_name.toLowerCase();
+    const bDisplayName = b.display_name.toLowerCase();
 
     const aStartsWith = aDisplayName.startsWith(prefix);
     const bStartsWith = bDisplayName.startsWith(prefix);
     if (aStartsWith && bStartsWith) {
-        return sortChannelsByDisplayName(a, b);
+        return sortChannelsByTypeAndDisplayName(locale, a, b);
     } else if (!aStartsWith && !bStartsWith) {
-        return sortChannelsByDisplayName(a, b);
+        return sortChannelsByTypeAndDisplayName(locale, a, b);
     } else if (aStartsWith) {
         return -1;
     }
@@ -119,24 +122,24 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
         };
     }
 
-    handlePretextChanged(suggestionId, channelPrefix) {
+    handlePretextChanged(channelPrefix, resultsCallback) {
         if (channelPrefix) {
             prefix = channelPrefix;
-            this.startNewRequest(suggestionId, channelPrefix);
+            this.startNewRequest(channelPrefix);
             const state = this.getState();
 
             // Dispatch suggestions for local data
             const channels = getChannelsInCurrentTeam(state);
-            this.formatChannelsAndDispatch(channelPrefix, suggestionId, channels);
+            this.formatChannelsAndDispatch(channelPrefix, resultsCallback, channels);
 
             // Fetch data from the server and dispatch
-            this.fetchChannels(channelPrefix, suggestionId);
+            this.fetchChannels(channelPrefix, resultsCallback);
         }
 
         return true;
     }
 
-    async fetchChannels(channelPrefix, suggestionId) {
+    async fetchChannels(channelPrefix, resultsCallback) {
         const state = this.getState();
         const teamId = getCurrentTeamId(state);
         if (!teamId) {
@@ -161,10 +164,10 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
         }
 
         const channels = getChannelsInCurrentTeam(state).concat(channelsFromServer);
-        this.formatChannelsAndDispatch(channelPrefix, suggestionId, channels);
+        this.formatChannelsAndDispatch(channelPrefix, resultsCallback, channels);
     }
 
-    formatChannelsAndDispatch(channelPrefix, suggestionId, allChannels) {
+    formatChannelsAndDispatch(channelPrefix, resultsCallback, allChannels) {
         const channels = [];
 
         const state = this.getState();
@@ -216,16 +219,12 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             sort(channelSearchSorter).
             map((wrappedChannel) => wrappedChannel.channel.name);
 
-        setTimeout(() => {
-            this.appDispatch({
-                type: ActionTypes.SUGGESTION_RECEIVED_SUGGESTIONS,
-                id: suggestionId,
-                matchedPretext: channelPrefix,
-                terms: channelNames,
-                items: channels,
-                component: SearchChannelWithPermissionsSuggestion,
-            });
-        }, 0);
+        resultsCallback({
+            matchedPretext: channelPrefix,
+            terms: channelNames,
+            items: channels,
+            component: SearchChannelWithPermissionsSuggestion,
+        });
     }
 
     getState = store.getState;

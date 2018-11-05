@@ -243,14 +243,13 @@ exports[`plugins/Pluggable should match snapshot with no overridden component 1`
             "openModal": [Function],
           }
         }
-        canManageChannelMembers={false}
+        currentTeamId="someTeamId"
         currentUserId=""
-        dispatch={[Function]}
         enableTimezone={false}
         hasMention={false}
         isRHS={false}
         src="src"
-        teamUrl="/somename"
+        teamUrl="/someTeamName"
         theme={Object {}}
         user={
           Object {
@@ -377,6 +376,29 @@ exports[`plugins/Pluggable should match snapshot with no overridden component 1`
                   </FormattedMessage>
                 </a>
               </div>
+              <Connect(TeamPermissionGate)
+                key="user-popover-add-to-channel"
+                permissions={
+                  Array [
+                    "manage_private_channel_members",
+                    "manage_public_channel_members",
+                  ]
+                }
+                teamId="someTeamId"
+              >
+                <TeamPermissionGate
+                  dispatch={[Function]}
+                  hasPermission={false}
+                  invert={false}
+                  permissions={
+                    Array [
+                      "manage_private_channel_members",
+                      "manage_public_channel_members",
+                    ]
+                  }
+                  teamId="someTeamId"
+                />
+              </Connect(TeamPermissionGate)>
               <Connect(Pluggable)
                 key="profilePopoverPluggable3"
                 pluggableName="PopoverUserActions"

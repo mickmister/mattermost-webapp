@@ -4,7 +4,7 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import {Child as AddUserToChannelModal} from 'components/add_user_to_channel_modal';
+import AddUserToChannelModal from 'components/add_user_to_channel_modal/add_user_to_channel_modal';
 
 describe('components/AddUserToChannelModal', () => {
     const baseProps = {

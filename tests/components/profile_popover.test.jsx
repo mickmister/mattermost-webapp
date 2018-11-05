@@ -4,32 +4,25 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
-import {Child as ProfilePopover} from 'components/profile_popover';
+import ProfilePopover from 'components/profile_popover/profile_popover';
 
 describe('components/ProfilePopover', () => {
     const baseProps = {
         user: {name: 'name'},
         src: 'src',
         enableWebrtc: false,
+        currentUserId: '',
+        currentTeamId: '',
+        teamUrl: '',
+        actions: {},
     };
 
-    test('should show "add to channel" button if user has permissions to manage channel members', () => {
-        const props = {...baseProps, canManageChannelMembers: true};
+    test('should match snapshot', () => {
+        const props = {...baseProps};
 
         const wrapper = shallow(
             <ProfilePopover {...props}/>
         );
-        expect(wrapper.find('.user-popover__add_to_channel').exists()).toBe(true);
-        expect(wrapper).toMatchSnapshot();
-    });
-
-    test('should hide "add to channel" button if user does not have permissions to manage channel members', () => {
-        const props = {...baseProps, canManageChannelMembers: false};
-
-        const wrapper = shallow(
-            <ProfilePopover {...props}/>
-        );
-        expect(wrapper.find('.user-popover__add_to_channel').exists()).toBe(false);
         expect(wrapper).toMatchSnapshot();
     });
 });

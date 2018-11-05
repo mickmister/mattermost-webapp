@@ -106,6 +106,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
     it('should show public channels if user has public channel manage permission', () => {
         const mockStore = configureStore();
         const roles = 'public_channels_manager';
+        const resultsCallback = jest.fn();
 
         const state = {
             ...defaultState,
@@ -125,18 +126,15 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const appDispatch = jest.fn();
-        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
         searchProvider.getState = getState.bind(searchProvider);
         const dispatch = store.dispatch;
         searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
-        searchProvider.handlePretextChanged('suggestionId', searchText);
-        jest.runAllTimers();
-        const args = appDispatch.mock.calls[0][0];
-
+        searchProvider.handlePretextChanged(searchText, resultsCallback);
+        expect(resultsCallback).toHaveBeenCalled();
+        const args = resultsCallback.mock.calls[0][0];
         expect(args.items[0].channel.id).toEqual('somePublicMemberChannelId');
         expect(args.items.length).toEqual(1);
     });
@@ -144,6 +142,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
     it('should show private channels if user has private channel manage permission', () => {
         const mockStore = configureStore();
         const roles = 'private_channels_manager';
+        const resultsCallback = jest.fn();
 
         const state = {
             ...defaultState,
@@ -163,17 +162,15 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const appDispatch = jest.fn();
-        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
         searchProvider.getState = getState.bind(searchProvider);
         const dispatch = store.dispatch;
         searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
-        searchProvider.handlePretextChanged('suggestionId', searchText);
-        jest.runAllTimers();
-        const args = appDispatch.mock.calls[0][0];
+        searchProvider.handlePretextChanged(searchText, resultsCallback);
+        expect(resultsCallback).toHaveBeenCalled();
+        const args = resultsCallback.mock.calls[0][0];
 
         expect(args.items[0].channel.id).toEqual('somePrivateMemberChannelId');
         expect(args.items.length).toEqual(1);
@@ -182,6 +179,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
     it('should show both public and private channels if user has public and private channel manage permission', () => {
         const mockStore = configureStore();
         const roles = 'public_channels_manager private_channels_manager';
+        const resultsCallback = jest.fn();
 
         const state = {
             ...defaultState,
@@ -201,17 +199,15 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const appDispatch = jest.fn();
-        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
         searchProvider.getState = getState.bind(searchProvider);
         const dispatch = store.dispatch;
         searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
-        searchProvider.handlePretextChanged('suggestionId', searchText);
-        jest.runAllTimers();
-        const args = appDispatch.mock.calls[0][0];
+        searchProvider.handlePretextChanged(searchText, resultsCallback);
+        expect(resultsCallback).toHaveBeenCalled();
+        const args = resultsCallback.mock.calls[0][0];
 
         expect(args.items[0].channel.id).toEqual('somePublicMemberChannelId');
         expect(args.items[1].channel.id).toEqual('somePrivateMemberChannelId');
@@ -221,6 +217,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
     it('should show nothing if the user does not have permissions to manage channels', () => {
         const mockStore = configureStore();
         const roles = '';
+        const resultsCallback = jest.fn();
 
         const state = {
             ...defaultState,
@@ -240,17 +237,15 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const appDispatch = jest.fn();
-        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
         searchProvider.getState = getState.bind(searchProvider);
         const dispatch = store.dispatch;
         searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'some';
-        searchProvider.handlePretextChanged('suggestionId', searchText);
-        jest.runAllTimers();
-        const args = appDispatch.mock.calls[0][0];
+        searchProvider.handlePretextChanged(searchText, resultsCallback);
+        expect(resultsCallback).toHaveBeenCalled();
+        const args = resultsCallback.mock.calls[0][0];
 
         expect(args.items.length).toEqual(0);
     });
@@ -258,6 +253,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
     it('should show nothing if the search does not match', () => {
         const mockStore = configureStore();
         const roles = 'public_channels_manager private_channels_manager';
+        const resultsCallback = jest.fn();
 
         const state = {
             ...defaultState,
@@ -277,17 +273,15 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const appDispatch = jest.fn();
-        searchProvider.appDispatch = appDispatch.bind(searchProvider);
         const getState = jest.fn().mockReturnValue(store.getState());
         searchProvider.getState = getState.bind(searchProvider);
         const dispatch = store.dispatch;
         searchProvider.dispatch = dispatch.bind(searchProvider);
 
         const searchText = 'not matching text';
-        searchProvider.handlePretextChanged('suggestionId', searchText);
-        jest.runAllTimers();
-        const args = appDispatch.mock.calls[0][0];
+        searchProvider.handlePretextChanged(searchText, resultsCallback);
+        expect(resultsCallback).toHaveBeenCalled();
+        const args = resultsCallback.mock.calls[0][0];
 
         expect(args.items.length).toEqual(0);
     });

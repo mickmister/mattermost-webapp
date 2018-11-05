@@ -25,8 +25,13 @@ describe('plugins/Pluggable', () => {
                 },
             },
             teams: {
-                currentTeamId: 'someid',
-                teams: {someid: {name: 'somename'}},
+                currentTeamId: 'someTeamId',
+                teams: {
+                    someTeamId: {
+                        id: 'someTeamId',
+                        name: 'someTeamName',
+                    },
+                },
             },
             preferences: {
                 myPreferences: {},

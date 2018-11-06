@@ -188,17 +188,23 @@ export default class AddUserToChannelModal extends React.Component {
         let inviteError;
         if (!this.state.saving) {
             if (this.state.inviteError) {
-                inviteError = (<label className='modal__error has-error control-label'>{this.state.inviteError}</label>);
+                inviteError = (
+                    <label className='add-user-to-channel-modal__invite-error modal__error has-error control-label'>
+                        {this.state.inviteError}
+                    </label>
+                );
             } else if (targetUserIsMemberOfSelectedChannel) {
-                inviteError = (<label className='modal__error has-error control-label'>
-                    <FormattedMessage
-                        id='add_user_to_channel_modal.membershipExistsError'
-                        defaultMessage='{name} is already a member of that channel'
-                        values={{
-                            name,
-                        }}
-                    />
-                </label>);
+                inviteError = (
+                    <label className='add-user-to-channel-modal__user-is-member modal__error has-error control-label'>
+                        <FormattedMessage
+                            id='add_user_to_channel_modal.membershipExistsError'
+                            defaultMessage='{name} is already a member of that channel'
+                            values={{
+                                name,
+                            }}
+                        />
+                    </label>
+                );
             }
         }
 
@@ -276,7 +282,7 @@ export default class AddUserToChannelModal extends React.Component {
                     </button>
                     <button
                         type='button'
-                        className='btn btn-primary'
+                        className='add-user-to-channel-modal__add-button btn btn-primary'
                         onClick={this.handleSubmit}
                         disabled={shouldDisableAddButton}
                     >

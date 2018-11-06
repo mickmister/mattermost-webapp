@@ -9,7 +9,11 @@ import AddUserToChannelModal from 'components/add_user_to_channel_modal/add_user
 describe('components/AddUserToChannelModal', () => {
     const baseProps = {
         channelMembers: {},
-        user: {id: 'someUserId'},
+        user: {
+            id: 'someUserId',
+            first_name: 'Fake',
+            last_name: 'Person',
+        },
         onHide: jest.fn(),
         actions: {
             addChannelMember: jest.fn(() => {
@@ -30,31 +34,33 @@ describe('components/AddUserToChannelModal', () => {
             <AddUserToChannelModal {...baseProps}/>
         );
 
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(true);
+        expect(wrapper.find('.add-user-to-channel-modal__user-is-member').exists()).toBe(false);
+        expect(wrapper.find('.add-user-to-channel-modal__invite-error').exists()).toBe(false);
         expect(wrapper).toMatchSnapshot();
     });
 
-    it('should match snapshot when a channel is selected', () => {
+    it('should enable the add button when a channel is selected', () => {
         const wrapper = shallow(
             <AddUserToChannelModal {...baseProps}/>
         );
-
-        wrapper.setState({inviteError: 'some error'});
-        expect(wrapper).toMatchSnapshot();
 
         wrapper.setState({selectedChannelId: 'someChannelId'});
-        expect(wrapper).toMatchSnapshot();
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(false);
+        expect(wrapper.find('.add-user-to-channel-modal__invite-error').exists()).toBe(false);
     });
 
-    it('should match snapshot when an error message is captured', () => {
+    it('should show invite error when an error message is captured', () => {
         const wrapper = shallow(
             <AddUserToChannelModal {...baseProps}/>
         );
 
         wrapper.setState({inviteError: 'some error'});
-        expect(wrapper).toMatchSnapshot();
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(true);
+        expect(wrapper.find('.add-user-to-channel-modal__invite-error').exists()).toBe(true);
     });
 
-    it('should match snapshot when membership is being checked', () => {
+    it('should disable add button when membership is being checked', () => {
         const wrapper = shallow(
             <AddUserToChannelModal {...baseProps}/>
         );
@@ -63,10 +69,11 @@ describe('components/AddUserToChannelModal', () => {
             selectedChannelId: 'someChannelId',
             checkingForMembership: true,
         });
-        expect(wrapper).toMatchSnapshot();
+
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(true);
     });
 
-    it('should match snapshot if user is a member of the selected channel', () => {
+    it('should display error message if user is a member of the selected channel', () => {
         const props = {...baseProps,
             channelMembers: {
                 someChannelId: {
@@ -80,10 +87,11 @@ describe('components/AddUserToChannelModal', () => {
         );
 
         wrapper.setState({selectedChannelId: 'someChannelId'});
-        expect(wrapper).toMatchSnapshot();
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(true);
+        expect(wrapper.find('.add-user-to-channel-modal__user-is-member').exists()).toBe(true);
     });
 
-    it('should match snapshot when saving', () => {
+    it('should disable the add button when saving', () => {
         const wrapper = shallow(
             <AddUserToChannelModal {...baseProps}/>
         );
@@ -92,7 +100,7 @@ describe('components/AddUserToChannelModal', () => {
             selectedChannelId: 'someChannelId',
             saving: true,
         });
-        expect(wrapper).toMatchSnapshot();
+        expect(wrapper.find('.add-user-to-channel-modal__add-button').props().disabled).toBe(true);
     });
 
     describe('didSelectChannel', () => {

@@ -3,9 +3,13 @@
 
 import configureStore from 'redux-mock-store';
 
+import {getState} from 'stores/redux_store';
+
 import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 
-jest.useFakeTimers();
+jest.mock('stores/redux_store', () => ({
+    getState: jest.fn(),
+}));
 
 describe('components/SearchChannelWithPermissionsProvider', () => {
     const defaultState = {
@@ -126,10 +130,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.getState = getState.bind(searchProvider);
-        const dispatch = store.dispatch;
-        searchProvider.dispatch = dispatch.bind(searchProvider);
+        getState.mockImplementation(store.getState);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged(searchText, resultsCallback);
@@ -162,10 +163,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.getState = getState.bind(searchProvider);
-        const dispatch = store.dispatch;
-        searchProvider.dispatch = dispatch.bind(searchProvider);
+        getState.mockImplementation(store.getState);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged(searchText, resultsCallback);
@@ -199,10 +197,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.getState = getState.bind(searchProvider);
-        const dispatch = store.dispatch;
-        searchProvider.dispatch = dispatch.bind(searchProvider);
+        getState.mockImplementation(store.getState);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged(searchText, resultsCallback);
@@ -237,10 +232,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.getState = getState.bind(searchProvider);
-        const dispatch = store.dispatch;
-        searchProvider.dispatch = dispatch.bind(searchProvider);
+        getState.mockImplementation(store.getState);
 
         const searchText = 'some';
         searchProvider.handlePretextChanged(searchText, resultsCallback);
@@ -273,10 +265,7 @@ describe('components/SearchChannelWithPermissionsProvider', () => {
         const store = mockStore(state);
         const searchProvider = new SearchChannelWithPermissionsProvider();
 
-        const getState = jest.fn().mockReturnValue(store.getState());
-        searchProvider.getState = getState.bind(searchProvider);
-        const dispatch = store.dispatch;
-        searchProvider.dispatch = dispatch.bind(searchProvider);
+        getState.mockImplementation(store.getState);
 
         const searchText = 'not matching text';
         searchProvider.handlePretextChanged(searchText, resultsCallback);

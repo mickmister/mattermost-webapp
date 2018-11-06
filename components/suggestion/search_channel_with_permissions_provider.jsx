@@ -107,7 +107,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
         const channelPrefixLower = channelPrefix.toLowerCase();
 
         return (channel) => {
-            const state = this.getState();
+            const state = store.getState();
             const canManagePublicChannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PUBLIC_CHANNEL_MEMBERS});
             const canManagePrivatehannels = haveICurrentTeamPermission(state, {permission: Permissions.MANAGE_PRIVATE_CHANNEL_MEMBERS});
             const searchString = channel.display_name;
@@ -126,7 +126,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
         if (channelPrefix) {
             prefix = channelPrefix;
             this.startNewRequest(channelPrefix);
-            const state = this.getState();
+            const state = store.getState();
 
             // Dispatch suggestions for local data
             const channels = getChannelsInCurrentTeam(state);
@@ -140,13 +140,13 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
     }
 
     async fetchChannels(channelPrefix, resultsCallback) {
-        const state = this.getState();
+        const state = store.getState();
         const teamId = getCurrentTeamId(state);
         if (!teamId) {
             return;
         }
 
-        const channelsAsync = ChannelActions.autocompleteChannelsForSearch(teamId, channelPrefix)(this.dispatch, this.getState);
+        const channelsAsync = ChannelActions.autocompleteChannelsForSearch(teamId, channelPrefix)(store.dispatch, store.getState);
 
         let channelsFromServer = [];
         try {
@@ -170,7 +170,7 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
     formatChannelsAndDispatch(channelPrefix, resultsCallback, allChannels) {
         const channels = [];
 
-        const state = this.getState();
+        const state = store.getState();
 
         const members = getMyChannelMemberships(state);
 
@@ -225,13 +225,5 @@ export default class SearchChannelWithPermissionsProvider extends Provider {
             items: channels,
             component: SearchChannelWithPermissionsSuggestion,
         });
-    }
-
-    getState = store.getState;
-
-    dispatch = store.dispatch;
-
-    appDispatch = (results) => {
-        AppDispatcher.handleServerAction(results);
     }
 }

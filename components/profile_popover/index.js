@@ -5,7 +5,8 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
-import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+
+import {getCurrentRelativeTeamUrl, getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 
 import {openModal} from 'actions/views/modals';
 
@@ -14,13 +15,11 @@ import {areTimezonesEnabledAndSupported} from 'selectors/general';
 import ProfilePopover from './profile_popover.jsx';
 
 function mapStateToProps(state) {
-    const currentTeam = getCurrentTeam(state);
-
     return {
         enableTimezone: areTimezonesEnabledAndSupported(state),
         currentUserId: getCurrentUserId(state),
-        currentTeamId: currentTeam.id,
-        teamUrl: '/' + currentTeam.name,
+        currentTeamId: getCurrentTeamId(state),
+        teamUrl: getCurrentRelativeTeamUrl(state),
     };
 }
 

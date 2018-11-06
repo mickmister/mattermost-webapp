@@ -6,13 +6,13 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 
-import * as UserUtils from 'mattermost-redux/utils/user_utils';
+import {getFullName} from 'mattermost-redux/utils/user_utils';
 
 import SearchChannelWithPermissionsProvider from 'components/suggestion/search_channel_with_permissions_provider.jsx';
 import SuggestionBox from 'components/suggestion/suggestion_box.jsx';
 import SuggestionList from 'components/suggestion/suggestion_list.jsx';
 
-import * as Utils from 'utils/utils.jsx';
+import {placeCaretAtEnd} from 'utils/utils.jsx';
 
 export default class AddUserToChannelModal extends React.Component {
     static propTypes = {
@@ -99,7 +99,7 @@ export default class AddUserToChannelModal extends React.Component {
         const textbox = this.channelSearchBox.getTextbox();
         if (document.activeElement !== textbox) {
             textbox.focus();
-            Utils.placeCaretAtEnd(textbox);
+            placeCaretAtEnd(textbox);
         }
     }
 
@@ -180,7 +180,7 @@ export default class AddUserToChannelModal extends React.Component {
         const channelId = this.state.selectedChannelId;
         const targetUserIsMemberOfSelectedChannel = this.isUserMemberOfChannel(channelId);
 
-        let name = UserUtils.getFullName(user);
+        let name = getFullName(user);
         if (!name) {
             name = `@${user.username}`;
         }

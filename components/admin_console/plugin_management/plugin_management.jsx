@@ -60,6 +60,13 @@ const PluginItemState = ({state}) => {
                 defaultMessage='Stopping'
             />
         );
+    case PluginState.PLUGIN_STATE_ERROR:
+        return (
+            <FormattedMessage
+                id='admin.plugin.state.error'
+                defaultMessage='Error'
+            />
+        );
     default:
         return (
             <FormattedMessage
@@ -74,7 +81,7 @@ PluginItemState.propTypes = {
     state: PropTypes.number.isRequired,
 };
 
-const PluginItemStateDescription = ({state}) => {
+const PluginItemStateDescription = ({state, error}) => {
     switch (state) {
     case PluginState.PLUGIN_STATE_NOT_RUNNING:
         return (
@@ -136,6 +143,19 @@ const PluginItemStateDescription = ({state}) => {
                 />
             </div>
         );
+    case PluginState.PLUGIN_STATE_ERROR:
+        return (
+            <div className='alert alert-danger'>
+                <i className='fa fa-times-circle'/>
+                <FormattedMessage
+                    id='admin.plugin.state.error.description'
+                    defaultMessage='This plugin has an error: {error}'
+                    values={{
+                        error,
+                    }}
+                />
+            </div>
+        );
     default:
         return null;
     }
@@ -153,10 +173,17 @@ const PluginItem = ({
     handleRemove,
     showInstances,
     hasSettings,
+    getPluginStatuses,
+    restartPlugin,
 }) => {
     let activateButton;
     const activating = pluginStatus.state === PluginState.PLUGIN_STATE_STARTING;
     const deactivating = pluginStatus.state === PluginState.PLUGIN_STATE_STOPPING;
+
+    const restartPluginLocal = () => {
+        restartPlugin(pluginStatus.id)
+        .then(getPluginStatuses);
+    };
 
     if (pluginStatus.active) {
         activateButton = (
@@ -211,6 +238,23 @@ const PluginItem = ({
                         defaultMessage='Settings'
                     />
                 </Link>
+            </span>
+        );
+    }
+
+    let restartButton = null;
+    if (pluginStatus.state === PluginState.PLUGIN_STATE_ERROR) {
+        restartButton = (
+            <span>
+                {' - '}
+                <a
+                    onClick={restartPluginLocal}
+                >
+                    <FormattedMessage
+                        id='admin.plugin.restartButton'
+                        defaultMessage='Restart'
+                    />
+                </a>
             </span>
         );
     }
@@ -289,6 +333,7 @@ const PluginItem = ({
         <PluginItemStateDescription
             key='state-description'
             state={pluginStatus.state}
+            error={pluginStatus.error}
         />
     );
 
@@ -369,6 +414,7 @@ const PluginItem = ({
                 {activateButton}
                 {removeButton}
                 {settingsButton}
+                {restartButton}
             </div>
             <div>
                 {notices}
@@ -683,6 +729,8 @@ export default class PluginManagement extends AdminSettings {
                         handleRemove={this.handleRemove}
                         showInstances={showInstances}
                         hasSettings={hasSettings}
+                        getPluginStatuses={this.props.actions.getPluginStatuses}
+                        restartPlugin={this.props.actions.restartPlugin}
                     />
                 );
             });

@@ -859,6 +859,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
               className="alert alert-transparent"
             >
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -886,6 +899,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
                 showInstances={true}
               />
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -1106,6 +1132,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
               className="alert alert-transparent"
             >
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -1321,6 +1360,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
               className="alert alert-transparent"
             >
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -1536,6 +1588,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
               className="alert alert-transparent"
             >
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -1751,6 +1816,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
               className="alert alert-transparent"
             >
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}
@@ -1778,6 +1856,19 @@ exports[`components/PluginManagement should match snapshot, with installed plugi
                 showInstances={true}
               />
               <PluginItem
+                getPluginStatuses={
+                  [MockFunction] {
+                    "calls": Array [
+                      Array [],
+                    ],
+                    "results": Array [
+                      Object {
+                        "type": "return",
+                        "value": Promise {},
+                      },
+                    ],
+                  }
+                }
                 handleDisable={[Function]}
                 handleEnable={[Function]}
                 handleRemove={[Function]}

@@ -1040,6 +1040,8 @@
   "admin.plugin.removing": "Removing...",
   "admin.plugin.settingsButton": "Settings",
   "admin.plugin.state": "State",
+  "admin.plugin.state.error": "Error",
+  "admin.plugin.state.error.description": "This plugin has an error: {error}",
   "admin.plugin.state.failed_to_start": "Failed to start",
   "admin.plugin.state.failed_to_start.description": "This plugin failed to start. Check your system logs for errors.",
   "admin.plugin.state.failed_to_stay_running": "Crashing",

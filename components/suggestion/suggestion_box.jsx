@@ -188,6 +188,11 @@ export default class SuggestionBox extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        const {value} = this.props;
+        if (value === '' && this.pretext !== value) {
+            this.handlePretextChanged(value);
+        }
+
         if (prevProps.contextId !== this.props.contextId) {
             const textbox = this.getTextbox();
             const pretext = textbox.value.substring(0, textbox.selectionEnd).toLowerCase();

@@ -346,14 +346,10 @@ export default class SchemaAdminSettings extends React.Component {
     }
 
     buildButtonSetting = (setting) => {
-        const handleRequestAction = (success, error) => {
-            setting.action(success, error, this.state['ServiceSettings.SiteURL']);
-        };
-
         return (
             <RequestButton
                 key={this.props.schema.id + '_text_' + setting.key}
-                requestAction={handleRequestAction}
+                requestAction={setting.action}
                 helpText={this.renderHelpText(setting)}
                 loadingText={Utils.localizeMessage(setting.loading, setting.loading_default)}
                 buttonText={<span>{this.renderLabel(setting)}</span>}

@@ -1,15 +1,20 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+/* eslint-disable react/require-optimization */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable no-console */
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
 import {UserStatuses, ModalIdentifiers} from 'utils/constants';
 import {localizeMessage} from 'utils/utils.jsx';
-import ResetStatusModal from 'components/reset_status_modal';
-import StatusIcon from 'components/status_icon.jsx';
 
+import ResetStatusModal from 'components/reset_status_modal';
+import CustomStatusModal from 'components/custom_status_modal';
+
+import StatusIcon from 'components/status_icon.jsx';
 import Avatar from 'components/widgets/users/avatar';
 import Menu from 'components/widgets/menu/menu';
 import MenuWrapper from 'components/widgets/menu/menu_wrapper';
@@ -18,6 +23,7 @@ export default class StatusDropdown extends React.Component {
     static propTypes = {
         style: PropTypes.object,
         status: PropTypes.string,
+        customStatus: PropTypes.string,
         userId: PropTypes.string.isRequired,
         profilePicture: PropTypes.string,
         autoResetPref: PropTypes.string,
@@ -31,6 +37,12 @@ export default class StatusDropdown extends React.Component {
         userId: '',
         profilePicture: '',
         status: UserStatuses.OFFLINE,
+        customStatus: ''
+    }
+
+    state = {
+        // Set customstatus from prop
+        customStatus: this.props.status
     }
 
     isUserOutOfOffice = () => {
@@ -62,6 +74,17 @@ export default class StatusDropdown extends React.Component {
     setDnd = (event) => {
         event.preventDefault();
         this.setStatus(UserStatuses.DND);
+    }
+
+    openCustomStatusModal = (event) => {
+        event.preventDefault();
+
+        const customStatusModalData = {
+            modalId: ModalIdentifiers.CUSTOM_STATUS,
+            dialogType: CustomStatusModal,
+            dialogProps: this.props.status // change to custom status
+        };
+        this.props.actions.openModal(customStatusModalData);
     }
 
     showStatusChangeConfirmation = (status) => {
@@ -103,6 +126,7 @@ export default class StatusDropdown extends React.Component {
     }
 
     render() {
+        console.log('>> Status dropdown', this.props);
         const needsConfirm = this.isUserOutOfOffice() && this.props.autoResetPref === '';
         const profilePicture = this.renderProfilePicture();
         const dropdownIcon = this.renderDropdownIcon();
@@ -111,6 +135,7 @@ export default class StatusDropdown extends React.Component {
         const setDnd = needsConfirm ? () => this.showStatusChangeConfirmation('dnd') : this.setDnd;
         const setAway = needsConfirm ? () => this.showStatusChangeConfirmation('away') : this.setAway;
         const setOffline = needsConfirm ? () => this.showStatusChangeConfirmation('offline') : this.setOffline;
+        const openCustomStatusModal = needsConfirm ? () => this.showStatusChangeConfirmation('custom') : this.openCustomStatusModal;
 
         return (
             <MenuWrapper
@@ -163,6 +188,13 @@ export default class StatusDropdown extends React.Component {
                             onClick={setOffline}
                             ariaLabel={localizeMessage('status_dropdown.set_offline', 'Offline').toLowerCase()}
                             text={localizeMessage('status_dropdown.set_offline', 'Offline')}
+                        />
+                        <Menu.ItemAction
+                            id={'status.dropdown.custom'}
+                            onClick={openCustomStatusModal}
+                            ariaLabel={'Set a custom status along with availability'}
+                            text={'Custom'}
+                            extraText={'Set a custom status along with availability'}
                         />
                     </Menu.Group>
                 </Menu>

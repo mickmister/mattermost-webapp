@@ -211,6 +211,7 @@ export const ModalIdentifiers = {
     DELETE_POST: 'delete_post',
     CONVERT_CHANNEL: 'convert_channel',
     RESET_STATUS: 'reset_status',
+    CUSTOM_STATUS: 'custom_status',
     LEAVE_TEAM: 'leave_team',
     RENAME_CHANNEL: 'rename_channel',
     USER_SETTINGS: 'user_settings',

@@ -15,6 +15,7 @@ import CustomStatusModal from './custom_status_modal.jsx';
 function mapStateToProps(state) {
     const {entities: {users: {currentUserId}}, views: {modals: {modalState: {custom_status}}}} = state;
     return {
+        currentUserId,
         currentUserStatus: getStatusForUserId(state, currentUserId),
         modalState: custom_status,
     };

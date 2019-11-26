@@ -2,7 +2,6 @@
 // See LICENSE.txt for license information.
 
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-filename-extension */
 
@@ -11,12 +10,14 @@ import {Modal} from 'react-bootstrap';
 
 import {ModalIdentifiers} from 'utils/constants';
 
-export default class ResetStatusModal extends React.PureComponent {
+export default class CustomStatusModal extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {
             show: this.props.modalState.open,
-            customStatus: this.props.modalState.dialogProps
+            status: this.props.currentUserStatus,
+            customStatus: this.props.modalState.dialogProps,
+            duration: 'none'
         };
     }
 
@@ -34,14 +35,19 @@ export default class ResetStatusModal extends React.PureComponent {
         }
         this.hideModal();
 
-        const newStatus = {...this.state.currentUserStatus};
-        newStatus.status = this.state.newStatus;
-        this.props.actions.setStatus(newStatus);
+        const {currentUserId} = this.props;
+        const {customStatus, status} = this.state;
+
+        this.props.actions.setStatus({
+            user_id: currentUserId,
+            status,
+            custom_text: customStatus
+        });
     };
 
     handleInputChange = (event) => {
-        const {target: {value}} = event;
-        this.setState({customStatus: value});
+        const {target: {value, name}} = event;
+        this.setState({[name]: value});
     }
 
     componentDidUpdate(prevProps) {
@@ -51,11 +57,12 @@ export default class ResetStatusModal extends React.PureComponent {
         if (prevProps.modalState.dialogProps !== this.props.modalState.dialogProps) {
             this.setState({customStatus: this.props.modalState.dialogProps});
         }
+        if (prevProps.currentUserStatus !== this.props.currentUserStatus) {
+            this.setState({status: this.props.currentUserStatus});
+        }
     }
 
     render() {
-        console.log('MODALSTate', this.props.modalState);
-        console.log("state",this.state)
         const {show} = this.state;
         return (
             <Modal
@@ -66,7 +73,6 @@ export default class ResetStatusModal extends React.PureComponent {
                 show={show}
                 onHide={this.hideModal}
                 aria-labelledby='confirmModalLabel'
-                centered={true}
             >
                 <Modal.Header closeButton={true}>
                     <Modal.Title
@@ -78,18 +84,56 @@ export default class ResetStatusModal extends React.PureComponent {
                 </Modal.Header>
                 <Modal.Body>
                     <form onSubmit={this.onConfirm}>
-                        <div className='form-group'>
-                            <div className='row'>
-                                <div className='col-sm-12'>
-                                    <input
-                                        autoFocus={true}
-                                        className='form-control'
-                                        type='text'
-                                        placeholder='A status can be of maximum 25 characters'
-                                        value={this.state.customStatus}
-                                        onChange={this.handleInputChange}
-                                    />
-                                </div>
+                        <div className='form-row'>
+                            <div className='form-group col-sm-12'>
+                                <input
+                                    name='customStatus'
+                                    autoFocus={true}
+                                    className='form-control'
+                                    type='text'
+                                    placeholder='A status can be of maximum 25 characters'
+                                    value={this.state.customStatus}
+                                    onChange={this.handleInputChange}
+                                />
+                            </div>
+                        </div>
+                        <div className='form-row mt-3'>
+                            <div className='form-group col-sm-6 mt-3'>
+                                <label htmlFor='custom-status-mark-as-select'>
+                                    {'Mark it as'}
+                                </label>
+                                <select
+                                    id='custom-status-mark-as-select'
+                                    name='status'
+                                    className='form-control'
+                                    value={this.state.status}
+                                    onChange={this.handleInputChange}
+                                >
+                                    <option value={'online'}>{'Online'}</option>
+                                    <option value={'away'}>{'Away'}</option>
+                                    <option value={'dnd'}>{'Do not disturb'}</option>
+                                    <option value={'offline'}>{'Offline'}</option>
+                                </select>
+                            </div>
+                            <div className='form-group col-sm-6 mt-3'>
+                                <label htmlFor='custom-status-clear-select'>
+                                    {'Clear after'}
+                                </label>
+                                <select
+                                    id='custom-status-clear-select'
+                                    name='duration'
+                                    className='form-control'
+                                    value={this.state.duration}
+                                    onChange={this.handleInputChange}
+                                >
+                                    <option value={'none'}>{'Dont clear'}</option>
+                                    <option value={'half-hour'}>{'30 minutes'}</option>
+                                    <option value={'one-hour'}>{'1 hour'}</option>
+                                    <option value={'two-hour'}>{'2 hour'}</option>
+                                    <option value={'today'}>{'Today'}</option>
+                                    <option value={'week'}>{'This week'}</option>
+                                    <option value={'custom'}>{'Choose date & time'}</option>
+                                </select>
                             </div>
                         </div>
                     </form>

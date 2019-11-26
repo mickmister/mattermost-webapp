@@ -42,7 +42,7 @@ export default class StatusDropdown extends React.Component {
 
     state = {
         // Set customstatus from prop
-        customStatus: this.props.status
+        customStatus: ''
     }
 
     isUserOutOfOffice = () => {
@@ -53,6 +53,7 @@ export default class StatusDropdown extends React.Component {
         this.props.actions.setStatus({
             user_id: this.props.userId,
             status,
+            custom_text: ''
         });
     }
 
@@ -82,7 +83,7 @@ export default class StatusDropdown extends React.Component {
         const customStatusModalData = {
             modalId: ModalIdentifiers.CUSTOM_STATUS,
             dialogType: CustomStatusModal,
-            dialogProps: this.props.status // change to custom status
+            dialogProps: ''
         };
         this.props.actions.openModal(customStatusModalData);
     }

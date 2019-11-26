@@ -13,10 +13,12 @@ import {closeModal} from 'actions/views/modals';
 import CustomStatusModal from './custom_status_modal.jsx';
 
 function mapStateToProps(state) {
-    const {entities: {users: {currentUserId}}, views: {modals: {modalState: {custom_status}}}} = state;
+    const {entities: {users: {currentUserId, customStatuses}}, views: {modals: {modalState: {custom_status}}}} = state;
+
     return {
         currentUserId,
         currentUserStatus: getStatusForUserId(state, currentUserId),
+        currentUserCustomStatus: customStatuses[currentUserId] || '',
         modalState: custom_status,
     };
 }

@@ -9,11 +9,11 @@ import UserProfile from './user_profile';
 
 function makeMapStateToProps() {
     const getDisplayName = makeGetDisplayName();
-
     return (state, ownProps) => {
         return {
             displayName: getDisplayName(state, ownProps.userId),
             user: getUser(state, ownProps.userId),
+            customUserStatus: state.entities.users.customStatuses[ownProps.userId] || ''
         };
     };
 }

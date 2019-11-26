@@ -1,5 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
 
 import PropTypes from 'prop-types';
 import React, {PureComponent} from 'react';
@@ -54,9 +56,15 @@ export default class UserProfile extends PureComponent {
             overwriteName,
             user,
             userId,
+            customUserStatus,
         } = this.props;
 
         const name = overwriteName || displayName || '...';
+        let customStatus = null;
+        if (customUserStatus && customUserStatus.length !== 0) {
+            customStatus = ` (${customUserStatus})`;
+        }
+
         if (disablePopover) {
             return <div className='user-popover'>{name}</div>;
         }
@@ -96,6 +104,7 @@ export default class UserProfile extends PureComponent {
                         className='user-popover style--none'
                     >
                         {name}
+                        {customStatus && <span style={{fontSize:"1rem",color:"222"}}>{customStatus}</span>}
                     </button>
                 </OverlayTrigger>
                 <BotBadge

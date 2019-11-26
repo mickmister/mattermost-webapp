@@ -16,7 +16,7 @@ export default class CustomStatusModal extends React.PureComponent {
         this.state = {
             show: this.props.modalState.open,
             status: this.props.currentUserStatus,
-            customStatus: this.props.modalState.dialogProps,
+            customStatus: this.props.currentUserCustomStatus,
             duration: 'none'
         };
     }
@@ -59,6 +59,9 @@ export default class CustomStatusModal extends React.PureComponent {
         }
         if (prevProps.currentUserStatus !== this.props.currentUserStatus) {
             this.setState({status: this.props.currentUserStatus});
+        }
+        if (prevProps.currentUserCustomStatus !== this.props.currentUserCustomStatus) {
+            this.setState({customStatus: this.props.currentUserCustomStatus});
         }
     }
 

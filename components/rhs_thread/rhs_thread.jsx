@@ -55,6 +55,7 @@ export default class RhsThread extends React.Component {
             selectPostCard: PropTypes.func.isRequired,
             getPostThread: PropTypes.func.isRequired,
         }).isRequired,
+        directTeammate: PropTypes.string.isRequired,
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -98,14 +99,14 @@ export default class RhsThread extends React.Component {
         const curPostsArray = this.props.posts || [];
 
         if (this.props.socketConnectionStatus && !prevProps.socketConnectionStatus) {
-            this.props.actions.getPostThread(this.props.selected.id, true);
+            this.props.actions.getPostThread(this.props.selected.id);
         }
 
         if (prevPostsArray.length >= curPostsArray.length) {
             return;
         }
 
-        const curLastPost = curPostsArray[curPostsArray.length - 1];
+        const curLastPost = curPostsArray[0];
 
         if (curLastPost.user_id === this.props.currentUserId) {
             this.scrollToBottom();
@@ -240,10 +241,6 @@ export default class RhsThread extends React.Component {
         });
     }
 
-    getSidebarBody = () => {
-        return this.refs.sidebarbody;
-    }
-
     render() {
         if (this.props.posts == null || this.props.selected == null) {
             return (
@@ -252,7 +249,17 @@ export default class RhsThread extends React.Component {
         }
 
         const postsArray = this.filterPosts(this.props.posts, this.props.selected, this.state.openTime);
+        const postsLength = postsArray.length;
         const {selected, currentUserId} = this.props;
+
+        let isRhsRootLastPost = false;
+        let lastRhsCommentPost = '';
+
+        if (postsLength === 0) {
+            isRhsRootLastPost = true;
+        } else {
+            lastRhsCommentPost = postsArray[postsLength - 1];
+        }
 
         let createAt = selected.create_at;
         if (!createAt && this.props.posts.length > 0) {
@@ -262,7 +269,6 @@ export default class RhsThread extends React.Component {
         let previousPostDay = rootPostDay;
 
         const commentsLists = [];
-        const postsLength = postsArray.length;
         let a11yIndex = 1;
         for (let i = 0; i < postsLength; i++) {
             const comPost = postsArray[i];
@@ -294,6 +300,7 @@ export default class RhsThread extends React.Component {
                     previewEnabled={this.props.previewEnabled}
                     handleCardClick={this.handleCardClickPost}
                     a11yIndex={a11yIndex++}
+                    isLastPost={comPost.id === lastRhsCommentPost.id}
                 />
             );
         }
@@ -319,7 +326,6 @@ export default class RhsThread extends React.Component {
                             rootId={selected.id}
                             rootDeleted={selected.state === Posts.POST_DELETED}
                             latestPostId={postsLength > 0 ? postsArray[postsLength - 1].id : selected.id}
-                            getSidebarBody={this.getSidebarBody}
                         />
                     </div>
                 );
@@ -327,7 +333,7 @@ export default class RhsThread extends React.Component {
         }
 
         if (this.props.channel.type === Constants.DM_CHANNEL) {
-            const teammate = Utils.getDirectTeammate(this.props.channel.id);
+            const teammate = this.props.directTeammate;
             if (teammate && teammate.delete_at) {
                 createComment = (
                     <div
@@ -346,7 +352,6 @@ export default class RhsThread extends React.Component {
             <div
                 id='rhsContainer'
                 className='sidebar-right__body'
-                ref='sidebarbody'
             >
                 <FloatingTimestamp
                     isScrolling={this.state.isScrolling}
@@ -355,6 +360,8 @@ export default class RhsThread extends React.Component {
                     isRhsPost={true}
                 />
                 <RhsHeaderPost
+                    rootPostId={selected.id}
+                    channel={this.props.channel}
                     previousRhsState={this.props.previousRhsState}
                 />
                 <Scrollbars
@@ -387,6 +394,7 @@ export default class RhsThread extends React.Component {
                                 previewEnabled={this.props.previewEnabled}
                                 isBusy={this.state.isBusy}
                                 handleCardClick={this.handleCardClick}
+                                isLastPost={isRhsRootLastPost}
                             />
                             {isFakeDeletedPost && rootPostDay && <DateSeparator date={rootPostDay}/>}
                             <div

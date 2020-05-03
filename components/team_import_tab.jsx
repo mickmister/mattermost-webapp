@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import {defineMessages, FormattedMessage, injectIntl} from 'react-intl';
 
 import * as utils from 'utils/utils.jsx';
-import {intlShape} from 'utils/react_intl';
 import {t} from 'utils/i18n';
 
 import LoadingSpinner from 'components/widgets/loading/loading_spinner';
@@ -24,6 +23,11 @@ const holders = defineMessages({
 });
 
 class TeamImportTab extends React.Component {
+    static propTypes = {
+        closeModal: PropTypes.func.isRequired,
+        collapseModal: PropTypes.func.isRequired,
+    };
+
     constructor(props) {
         super(props);
 
@@ -43,11 +47,10 @@ class TeamImportTab extends React.Component {
 
     doImportSlack = (file) => {
         this.setState({status: 'in-progress', link: ''});
-        utils.importSlack(file, this.onImportSuccess, this.onImportFailure);
+        utils.importSlack(this.props.team.id, file, this.onImportSuccess, this.onImportFailure);
     }
 
     render() {
-        const {formatMessage} = this.props.intl;
         const uploadDocsLink = (
             <a
                 href='https://docs.mattermost.com/administration/migrating.html#migrating-from-slack'
@@ -137,7 +140,7 @@ class TeamImportTab extends React.Component {
 
         const uploadSection = (
             <SettingUpload
-                title={formatMessage(holders.importSlack)}
+                title={<FormattedMessage {...holders.importSlack}/>}
                 submit={this.doImportSlack}
                 helpText={uploadHelpText}
                 fileTypesAccepted='.zip'
@@ -246,9 +249,9 @@ class TeamImportTab extends React.Component {
 }
 
 TeamImportTab.propTypes = {
-    intl: intlShape.isRequired,
     closeModal: PropTypes.func.isRequired,
     collapseModal: PropTypes.func.isRequired,
+    team: PropTypes.object.isRequired,
 };
 
 export default injectIntl(TeamImportTab);

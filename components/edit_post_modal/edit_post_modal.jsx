@@ -3,7 +3,7 @@
 
 import React from 'react';
 import {Modal} from 'react-bootstrap';
-import {FormattedMessage} from 'react-intl';
+import {FormattedMessage, injectIntl} from 'react-intl';
 import PropTypes from 'prop-types';
 
 import {Constants, ModalIdentifiers} from 'utils/constants';
@@ -16,18 +16,22 @@ import DeletePostModal from 'components/delete_post_modal';
 import EmojiPickerOverlay from 'components/emoji_picker/emoji_picker_overlay.jsx';
 import EmojiIcon from 'components/widgets/icons/emoji_icon';
 import Textbox from 'components/textbox';
-import TextboxLinks from 'components/textbox/textbox_links.jsx';
+import TextboxLinks from 'components/textbox/textbox_links';
 
 const KeyCodes = Constants.KeyCodes;
 
-export default class EditPostModal extends React.PureComponent {
+class EditPostModal extends React.PureComponent {
     static propTypes = {
         canEditPost: PropTypes.bool,
         canDeletePost: PropTypes.bool,
         codeBlockOnCtrlEnter: PropTypes.bool,
         ctrlSend: PropTypes.bool,
         config: PropTypes.object.isRequired,
+        intl: intlShape.isRequired,
         maxPostSize: PropTypes.number.isRequired,
+        shouldShowPreview: PropTypes.bool.isRequired,
+        useChannelMentions: PropTypes.bool.isRequired,
+
         editingPost: PropTypes.shape({
             post: PropTypes.object,
             postId: PropTypes.string,
@@ -43,18 +47,14 @@ export default class EditPostModal extends React.PureComponent {
             editPost: PropTypes.func.isRequired,
             hideEditPostModal: PropTypes.func.isRequired,
             openModal: PropTypes.func.isRequired,
+            setShowPreview: PropTypes.func.isRequired,
         }).isRequired,
     }
-
-    static contextTypes = {
-        intl: intlShape.isRequired,
-    };
 
     constructor(props) {
         super(props);
 
         this.state = {
-            preview: false,
             editText: '',
             caretPosition: ''.length,
             postError: '',
@@ -75,8 +75,8 @@ export default class EditPostModal extends React.PureComponent {
         return null;
     }
 
-    updatePreview = (newState) => {
-        this.setState({preview: newState});
+    setShowPreview = (newPreviewValue) => {
+        this.props.actions.setShowPreview(newPreviewValue);
     }
 
     getContainer = () => {
@@ -242,7 +242,11 @@ export default class EditPostModal extends React.PureComponent {
     }
 
     handleKeyDown = (e) => {
-        if (this.props.ctrlSend && Utils.isKeyPressed(e, KeyCodes.ENTER) && e.ctrlKey === true) {
+        // listen for line break key combo and insert new line character
+        if (Utils.isUnhandledLineBreakKeyCombo(e)) {
+            e.stopPropagation(); // perhaps this should happen in all of these cases? or perhaps Modal should not be listening?
+            this.setState({editText: Utils.insertLineBreakFromKeyEvent(e)});
+        } else if (this.props.ctrlSend && Utils.isKeyPressed(e, KeyCodes.ENTER) && e.ctrlKey === true) {
             this.handleEdit();
         } else if (Utils.isKeyPressed(e, KeyCodes.ESCAPE) && !this.state.showEmojiPicker) {
             this.handleHide();
@@ -254,6 +258,14 @@ export default class EditPostModal extends React.PureComponent {
         this.props.actions.hideEditPostModal();
     }
 
+    handleCheckForChangesHide = () => {
+        if (this.state.editText !== this.props.editingPost.post.message) {
+            return;
+        }
+
+        this.handleHide();
+    }
+
     handleEntered = () => {
         if (this.editbox) {
             this.editbox.focus();
@@ -262,7 +274,7 @@ export default class EditPostModal extends React.PureComponent {
     }
 
     handleExit = () => {
-        this.setState({preview: false});
+        this.props.actions.setShowPreview(false);
     }
 
     handleExited = () => {
@@ -277,7 +289,8 @@ export default class EditPostModal extends React.PureComponent {
         }
 
         this.refocusId = null;
-        this.setState({editText: '', postError: '', errorClass: null, preview: false, showEmojiPicker: false, prevShowState: false});
+        this.setState({editText: '', postError: '', errorClass: null, showEmojiPicker: false, prevShowState: false});
+        this.props.actions.setShowPreview(false);
     }
 
     setEditboxRef = (ref) => {
@@ -305,7 +318,7 @@ export default class EditPostModal extends React.PureComponent {
     }
 
     render() {
-        const {formatMessage} = this.context.intl;
+        const {formatMessage} = this.props.intl;
         const errorBoxClass = 'edit-post-footer' + (this.state.postError ? ' has-error' : '');
         let postError = null;
         if (this.state.postError) {
@@ -315,7 +328,7 @@ export default class EditPostModal extends React.PureComponent {
 
         let emojiPicker = null;
         const emojiButtonAriaLabel = formatMessage({id: 'emoji_picker.emojiPicker', defaultMessage: 'Emoji Picker'}).toLowerCase();
-        if (this.props.config.EnableEmojiPicker === 'true' && !this.state.preview) {
+        if (this.props.config.EnableEmojiPicker === 'true' && !this.props.shouldShowPreview) {
             emojiPicker = (
                 <div>
                     <EmojiPickerOverlay
@@ -350,7 +363,7 @@ export default class EditPostModal extends React.PureComponent {
                 dialogClassName='a11y__modal edit-modal'
                 show={this.props.editingPost.show}
                 onKeyDown={this.handleKeyDown}
-                onHide={this.handleHide}
+                onHide={this.handleCheckForChangesHide}
                 onEntered={this.handleEntered}
                 onExit={this.handleExit}
                 onExited={this.handleExited}
@@ -358,7 +371,10 @@ export default class EditPostModal extends React.PureComponent {
                 role='dialog'
                 aria-labelledby='editPostModalLabel'
             >
-                <Modal.Header closeButton={true}>
+                <Modal.Header
+                    closeButton={true}
+                    onHide={this.handleHide}
+                >
                     <Modal.Title
                         componentClass='h1'
                         id='editPostModalLabel'
@@ -395,7 +411,8 @@ export default class EditPostModal extends React.PureComponent {
                                 id='edit_textbox'
                                 ref={this.setEditboxRef}
                                 characterLimit={this.props.maxPostSize}
-                                preview={this.state.preview}
+                                preview={this.props.shouldShowPreview}
+                                useChannelMentions={this.props.useChannelMentions}
                             />
                             <div className='post-body__actions'>
                                 {emojiPicker}
@@ -404,9 +421,9 @@ export default class EditPostModal extends React.PureComponent {
                         <div className='post-create-footer'>
                             <TextboxLinks
                                 characterLimit={this.props.maxPostSize}
-                                showPreview={this.state.preview}
+                                showPreview={this.props.shouldShowPreview}
                                 ref={this.setTextboxLinksRef}
-                                updatePreview={this.updatePreview}
+                                updatePreview={this.setShowPreview}
                                 message={this.state.editText}
                             />
                             <div className={errorBoxClass}>
@@ -443,3 +460,5 @@ export default class EditPostModal extends React.PureComponent {
         );
     }
 }
+
+export default injectIntl(EditPostModal);

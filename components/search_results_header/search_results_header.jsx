@@ -3,14 +3,16 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {Tooltip} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
+
+import OverlayTrigger from 'components/overlay_trigger';
 
 import Constants from 'utils/constants';
 
 export default class SearchResultsHeader extends React.Component {
     static propTypes = {
-        children: PropTypes.element,
+        children: PropTypes.node,
         actions: PropTypes.shape({
             closeRightHandSide: PropTypes.func,
             toggleRhsExpanded: PropTypes.func.isRequired,
@@ -22,7 +24,7 @@ export default class SearchResultsHeader extends React.Component {
             <Tooltip id='closeSidebarTooltip'>
                 <FormattedMessage
                     id='rhs_header.closeSidebarTooltip'
-                    defaultMessage='Close Sidebar'
+                    defaultMessage='Close the sidebar'
                 />
             </Tooltip>
         );
@@ -31,7 +33,7 @@ export default class SearchResultsHeader extends React.Component {
             <Tooltip id='expandSidebarTooltip'>
                 <FormattedMessage
                     id='rhs_header.expandSidebarTooltip'
-                    defaultMessage='Expand Sidebar'
+                    defaultMessage='Expand the sidebar'
                 />
             </Tooltip>
         );
@@ -40,7 +42,7 @@ export default class SearchResultsHeader extends React.Component {
             <Tooltip id='shrinkSidebarTooltip'>
                 <FormattedMessage
                     id='rhs_header.shrinkSidebarTooltip'
-                    defaultMessage='Shrink Sidebar'
+                    defaultMessage='Shrink the sidebar'
                 />
             </Tooltip>
         );
@@ -51,7 +53,7 @@ export default class SearchResultsHeader extends React.Component {
                 <div className='pull-right'>
                     <button
                         type='button'
-                        className='sidebar--right__expand'
+                        className='sidebar--right__expand btn-icon'
                         aria-label='Expand'
                         onClick={this.props.actions.toggleRhsExpanded}
                     >
@@ -62,11 +64,11 @@ export default class SearchResultsHeader extends React.Component {
                         >
                             <FormattedMessage
                                 id='rhs_header.expandSidebarTooltip.icon'
-                                defaultMessage='Expand Sidebar Icon'
+                                defaultMessage='Expand the sidebar icon'
                             >
                                 {(ariaLabel) => (
                                     <i
-                                        className='fa fa-expand'
+                                        className='icon icon-arrow-expand'
                                         aria-label={ariaLabel}
                                     />
                                 )}
@@ -79,11 +81,11 @@ export default class SearchResultsHeader extends React.Component {
                         >
                             <FormattedMessage
                                 id='rhs_header.expandTooltip.icon'
-                                defaultMessage='Shrink Sidebar Icon'
+                                defaultMessage='Shrink the sidebar icon'
                             >
                                 {(ariaLabel) => (
                                     <i
-                                        className='fa fa-compress'
+                                        className='icon icon-arrow-collapse'
                                         aria-label={ariaLabel}
                                     />
                                 )}
@@ -93,7 +95,7 @@ export default class SearchResultsHeader extends React.Component {
                     <button
                         id='searchResultsCloseButton'
                         type='button'
-                        className='sidebar--right__close'
+                        className='sidebar--right__close btn-icon'
                         aria-label='Close'
                         onClick={this.props.actions.closeRightHandSide}
                     >
@@ -104,11 +106,11 @@ export default class SearchResultsHeader extends React.Component {
                         >
                             <FormattedMessage
                                 id='rhs_header.closeTooltip.icon'
-                                defaultMessage='Close Sidebar Icon'
+                                defaultMessage='Close the sidebar icon'
                             >
                                 {(ariaLabel) => (
                                     <i
-                                        className='fa fa-sign-out'
+                                        className='icon icon-close'
                                         aria-label={ariaLabel}
                                     />
                                 )}

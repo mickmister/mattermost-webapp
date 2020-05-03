@@ -7,8 +7,13 @@
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
 
+// Stage: @prod
+// Group: @markdown
+
 describe('Markdown', () => {
     before(() => {
+        // # Login as sysadmin and update config
+        cy.apiLogin('sysadmin');
         cy.apiUpdateConfig({
             ImageProxySettings: {
                 Enable: true,
@@ -17,7 +22,7 @@ describe('Markdown', () => {
         });
 
         // # Login as new user
-        cy.loginAsNewUser().then(() => {
+        cy.apiCreateAndLoginAsNewUser().then(() => {
             // # Create new team and visit its URL
             cy.apiCreateTeam('test-team', 'Test Team').then((response) => {
                 cy.visit(`/${response.body.name}`);
@@ -46,7 +51,7 @@ describe('Markdown', () => {
                 and((inlineImg) => {
                     expect(inlineImg.height()).to.be.closeTo(20, 0.9);
                 }).
-                and('have.css', 'width', '97px');
+                and('have.css', 'width', '98px');
         });
     });
 
@@ -68,8 +73,8 @@ describe('Markdown', () => {
                 and('have.class', 'a11y--active').
                 and('have.attr', 'alt', 'Github').
                 and('have.attr', 'src', `${baseUrl}/api/v4/image?url=https%3A%2F%2Fgithub.githubassets.com%2Ffavicon.ico`).
-                and('have.css', 'height', '33px').
-                and('have.css', 'width', '33px');
+                and('have.css', 'height', '34px').
+                and('have.css', 'width', '34px');
         });
     });
 
@@ -108,8 +113,8 @@ describe('Markdown', () => {
             // # Get the image and simulate a click.
             cy.get(`#postMessageText_${postId}`).should('be.visible').within(() => {
                 cy.get('.markdown-inline-img').should('be.visible').
-                    should('have.css', 'height', '33px').
-                    and('have.css', 'width', '33px').
+                    should('have.css', 'height', '34px').
+                    and('have.css', 'width', '34px').
                     click();
             });
 

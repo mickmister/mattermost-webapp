@@ -25,6 +25,7 @@ import IntlProvider from 'components/intl_provider';
 import NeedsTeam from 'components/needs_team';
 import PermalinkRedirector from 'components/permalink_redirector';
 import {makeAsyncComponent} from 'components/async_load';
+
 const LazyErrorPage = React.lazy(() => import('components/error_page'));
 const LazyLoginController = React.lazy(() => import('components/login/login_controller'));
 const LazyAdminConsole = React.lazy(() => import('components/admin_console'));
@@ -38,8 +39,7 @@ const LazyShouldVerifyEmail = React.lazy(() => import('components/should_verify_
 const LazyDoVerifyEmail = React.lazy(() => import('components/do_verify_email'));
 const LazyClaimController = React.lazy(() => import('components/claim'));
 const LazyHelpController = React.lazy(() => import('components/help/help_controller'));
-const LazyGetIosApp = React.lazy(() => import('components/get_ios_app'));
-const LazyGetAndroidApp = React.lazy(() => import('components/get_android_app'));
+const LazyLinkingLandingPage = React.lazy(() => import('components/linking_landing_page'));
 const LazySelectTeam = React.lazy(() => import('components/select_team'));
 const LazyAuthorize = React.lazy(() => import('components/authorize'));
 const LazyCreateTeam = React.lazy(() => import('components/create_team'));
@@ -48,6 +48,7 @@ const LazyMfa = React.lazy(() => import('components/mfa/mfa_controller'));
 import store from 'stores/redux_store.jsx';
 import {getSiteURL} from 'utils/url';
 import {enableDevModeFeatures, isDevMode} from 'utils/utils';
+
 import A11yController from 'utils/a11y_controller';
 
 const CreateTeam = makeAsyncComponent(LazyCreateTeam);
@@ -64,8 +65,7 @@ const ShouldVerifyEmail = makeAsyncComponent(LazyShouldVerifyEmail);
 const DoVerifyEmail = makeAsyncComponent(LazyDoVerifyEmail);
 const ClaimController = makeAsyncComponent(LazyClaimController);
 const HelpController = makeAsyncComponent(LazyHelpController);
-const GetIosApp = makeAsyncComponent(LazyGetIosApp);
-const GetAndroidApp = makeAsyncComponent(LazyGetAndroidApp);
+const LinkingLandingPage = makeAsyncComponent(LazyLinkingLandingPage);
 const SelectTeam = makeAsyncComponent(LazySelectTeam);
 const Authorize = makeAsyncComponent(LazyAuthorize);
 const Mfa = makeAsyncComponent(LazyMfa);
@@ -194,6 +194,68 @@ export default class Root extends React.Component {
         }
         /*eslint-enable */
 
+        const rudderKey = Constants.DIAGNOSTICS_RUDDER_KEY;
+        const rudderUrl = Constants.DIAGNOSTICS_RUDDER_DATAPLANE_URL;
+
+        if (rudderKey != null && rudderKey !== '' && !rudderKey.startsWith('placeholder') && rudderUrl != null && rudderUrl !== '' && !rudderUrl.startsWith('placeholder') && this.props.diagnosticsEnabled) {
+            if (!global.window.rudderanalytics) {
+                global.window.rudderanalytics = [];
+            }
+            const rudderAnalytics = global.window.rudderanalytics;
+
+            if (rudderAnalytics.invoked) {
+                console.error('Rudder snippet included twice.'); //eslint-disable-line no-console
+            } else {
+                rudderAnalytics.invoked = true;
+
+                for (let methods = ['load', 'page', 'track', 'alias', 'group', 'identify', 'ready', 'reset'], i = 0; i < methods.length; i++) {
+                    const method = methods[i];
+                    rudderAnalytics[method] = ((d) => {
+                        return (...args) => {
+                            rudderAnalytics.push([d, ...args]);
+                        };
+                    })(method);
+                }
+
+                const e = document.createElement('script');
+                e.type = 'text/javascript';
+                e.async = true;
+                e.src = (document.location.protocol === 'https:' ? 'https://' : 'http://') + 'cdn.rudderlabs.com/rudder-analytics.min.js';
+                const n = document.getElementsByTagName('script')[0];
+                n.parentNode.insertBefore(e, n);
+
+                rudderAnalytics.load(rudderKey, rudderUrl);
+
+                rudderAnalytics.identify(diagnosticId, {}, {
+                    context: {
+                        ip: '0.0.0.0',
+                    },
+                    page: {
+                        path: '',
+                        referrer: '',
+                        search: '',
+                        title: '',
+                        url: '',
+                    },
+                    anonymousId: '00000000000000000000000000',
+                });
+
+                rudderAnalytics.page('ApplicationLoaded', {
+                    path: '',
+                    referrer: '',
+                    search: '',
+                    title: '',
+                    url: '',
+                },
+                {
+                    context: {
+                        ip: '0.0.0.0'
+                    },
+                    anonymousId: '00000000000000000000000000'
+                });
+            }
+        }
+
         if (this.props.location.pathname === '/' && this.props.noAccounts) {
             this.props.history.push('/signup_user_complete');
         }
@@ -210,27 +272,27 @@ export default class Root extends React.Component {
         const toResetPasswordScreen = this.props.location.pathname === '/reset_password_complete';
 
         // redirect to the mobile landing page if the user hasn't seen it before
-        if (iosDownloadLink && UserAgent.isIosWeb() && !BrowserStore.hasSeenLandingPage() && !toResetPasswordScreen) {
-            this.props.history.push('/get_ios_app?redirect_to=' + encodeURIComponent(this.props.location.pathname) + encodeURIComponent(this.props.location.search));
-            BrowserStore.setLandingPageSeen(true);
-        } else if (androidDownloadLink && UserAgent.isAndroidWeb() && !BrowserStore.hasSeenLandingPage() && !toResetPasswordScreen) {
-            this.props.history.push('/get_android_app?redirect_to=' + encodeURIComponent(this.props.location.pathname) + encodeURIComponent(this.props.location.search));
+        let mobileLanding;
+        if (UserAgent.isAndroidWeb()) {
+            mobileLanding = androidDownloadLink;
+        } else if (UserAgent.isIosWeb()) {
+            mobileLanding = iosDownloadLink;
+        }
+
+        if (mobileLanding && !BrowserStore.hasSeenLandingPage() && !toResetPasswordScreen && !this.props.location.pathname.includes('/landing')) {
+            this.props.history.push('/landing#' + this.props.location.pathname + this.props.location.search);
             BrowserStore.setLandingPageSeen(true);
         }
     }
 
-    redirectIfNecessary = (props) => {
-        if (props.location.pathname === '/') {
+    componentDidUpdate(prevProps) {
+        if (this.props.location.pathname === '/') {
             if (this.props.noAccounts) {
-                this.props.history.push('/signup_user_complete');
-            } else if (props.showTermsOfService) {
-                this.props.history.push('/terms_of_service');
+                prevProps.history.push('/signup_user_complete');
+            } else if (this.props.showTermsOfService) {
+                prevProps.history.push('/terms_of_service');
             }
         }
-    }
-
-    UNSAFE_componentWillReceiveProps(newProps) { // eslint-disable-line camelcase
-        this.redirectIfNecessary(newProps);
     }
 
     componentDidMount() {
@@ -300,12 +362,8 @@ export default class Root extends React.Component {
                         component={TermsOfService}
                     />
                     <Route
-                        path={'/get_ios_app'}
-                        component={GetIosApp}
-                    />
-                    <Route
-                        path={'/get_android_app'}
-                        component={GetAndroidApp}
+                        path={'/landing'}
+                        component={LinkingLandingPage}
                     />
                     <LoggedInRoute
                         path={'/admin_console'}

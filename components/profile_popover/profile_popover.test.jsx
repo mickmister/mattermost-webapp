@@ -26,6 +26,7 @@ describe('components/ProfilePopover', () => {
             getMembershipForCurrentEntities: jest.fn(),
             openDirectChannelToUserId: jest.fn(),
             openModal: jest.fn(),
+            closeModal: jest.fn(),
             loadBot: jest.fn(),
         },
     };
@@ -35,7 +36,7 @@ describe('components/ProfilePopover', () => {
 
         const wrapper = shallowWithIntl(
             <ProfilePopover {...props}/>
-        ).dive();
+        );
         expect(wrapper).toMatchSnapshot();
     });
 
@@ -50,7 +51,7 @@ describe('components/ProfilePopover', () => {
 
         const wrapper = shallowWithIntl(
             <ProfilePopover {...props}/>
-        ).dive();
+        );
         expect(wrapper.containsMatchingElement(
             <div
                 key='bot-description'
@@ -66,7 +67,7 @@ describe('components/ProfilePopover', () => {
 
         const wrapper = shallowWithIntl(
             <ProfilePopover {...props}/>
-        ).dive();
+        );
         expect(wrapper).toMatchSnapshot();
     });
 
@@ -77,7 +78,7 @@ describe('components/ProfilePopover', () => {
 
         const wrapper = shallowWithIntl(
             <ProfilePopover {...props}/>
-        ).dive();
+        );
 
         const pluggableProps = {
             hide,

@@ -275,7 +275,7 @@ var config = {
             meta: {
                 csp: {
                     'http-equiv': 'Content-Security-Policy',
-                    content: 'script-src \'self\' cdn.rudderlabs.com/' + CSP_UNSAFE_EVAL_IF_DEV,
+                    content: 'script-src \'self\' cdn.rudderlabs.com/ www.youtube.com/ s.ytimg.com/yts/jsbin/' + CSP_UNSAFE_EVAL_IF_DEV,
                 },
             },
         }),

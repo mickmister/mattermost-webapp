@@ -64,7 +64,7 @@ export default class YoutubeVideo extends React.PureComponent {
         if (this.state.playing) {
             content = (
                 <iframe
-                    id={videoId}
+                    id={`_${videoId}`}
                     src={'https://www.youtube.com/embed/' + videoId + '?autoplay=1&autohide=1&border=0&wmode=opaque&fs=1&enablejsapi=1' + time}
                     width='480px'
                     height='360px'

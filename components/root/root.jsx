@@ -233,7 +233,7 @@ export default class Root extends React.PureComponent {
         }
 
         if (mobileLanding && !BrowserStore.hasSeenLandingPage() && !toResetPasswordScreen && !this.props.location.pathname.includes('/landing')) {
-            this.props.history.push('/landing#' + this.props.location.pathname + this.props.location.search);
+            // this.props.history.push('/landing#' + this.props.location.pathname + this.props.location.search);
             BrowserStore.setLandingPageSeen(true);
         }
     }
